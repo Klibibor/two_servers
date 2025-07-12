@@ -10,9 +10,8 @@ class Proizvod(models.Model):
     naziv = models.CharField(max_length=100)
     opis = models.TextField()
     cena = models.DecimalField(max_digits=10, decimal_places=2)
-    stara_cena = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    slika = models.ImageField(upload_to='proizvodi/', null=True, blank=True)
-
+    slika = models.ImageField(upload_to='proizvodi/', null=True, blank=True)  # ← ovo je ključno
+    
     grupa = models.ForeignKey(GrupaProizvoda, on_delete=models.CASCADE, null=True, blank=True)
 
 

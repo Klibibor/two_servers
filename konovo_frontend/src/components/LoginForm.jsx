@@ -1,8 +1,9 @@
+// LoginForm.jsx
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 function LoginForm() {
-  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState(""); // <-- umesto email
   const [password, setPassword] = useState("");
   const [greska, setGreska] = useState("");
   const navigate = useNavigate();
@@ -12,15 +13,15 @@ function LoginForm() {
     setGreska("");
 
     try {
-      const res = await fetch("http://localhost:8000/api/login/", {
+      const res = await fetch("http://localhost:8000/api/token/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password }),
+        body: JSON.stringify({ username, password }), // <-- koristi username
       });
 
       const data = await res.json();
       if (res.ok) {
-        localStorage.setItem("jwt", data.token);
+        localStorage.setItem("jwt", data.access); // ← koristi access token
         navigate("/proizvodi");
       } else {
         setGreska(data.error || "Greška pri prijavi.");
@@ -35,10 +36,10 @@ function LoginForm() {
       <h2>Prijava</h2>
       {greska && <p style={{ color: "red" }}>{greska}</p>}
       <input
-        type="email"
-        placeholder="Email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
+        type="text"
+        placeholder="Korisničko ime (ili email ako ti je username email)"
+        value={username}
+        onChange={(e) => setUsername(e.target.value)}
         required
       /><br />
       <input

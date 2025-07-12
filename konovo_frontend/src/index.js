@@ -7,6 +7,8 @@ import LoginForm from './components/LoginForm';
 import Proizvodi from './components/Proizvodi';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import './index.css';
+import KorisniciCRUD from "./components/KorisniciCRUD";
+import ProizvodiCRUD from "./components/ProizvodiCRUD";
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 
@@ -19,6 +21,8 @@ root.render(
           <Route path="grupa/:id" element={<GrupaDetalji />} />
           <Route path="login" element={<LoginForm />} />
           <Route path="proizvodi" element={<Proizvodi />} />
+          <Route path="korisnici" element={<KorisniciCRUD />} />      {/* ← ispravno */}
+          <Route path="proizvodi-crud" element={<ProizvodiCRUD />} /> {/* ← ispravno */}
         </Route>
       </Routes>
     </BrowserRouter>
