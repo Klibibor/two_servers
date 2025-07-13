@@ -5,48 +5,95 @@ function ProizvodiCRUD() {
   const [novi, setNovi] = useState({ naziv: "", opis: "", cena: "" });
   const token = localStorage.getItem("jwt");
   const [slika, setSlika] = useState(null);
+  const [editId, setEditId] = useState(null);
+  const [novaCena, setNovaCena] = useState("");
+  const [grupe, setGrupe] = useState([]);
 
-  const headers = {
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${token}`,
+  const authHeader = {
+    Authorization: `Bearer ${token}`
   };
 
   useEffect(() => {
-    fetch("http://localhost:8000/api/proizvodi/", { headers })
+    fetch("http://localhost:8000/api/proizvodi/", { headers: authHeader })
       .then(res => res.json())
-      .then(data => setProizvodi(data))
-      .catch(err => console.error("Greška:", err));
+      .then(data => {
+        if (Array.isArray(data)) {
+          setProizvodi(data);
+        } else {
+          console.error("Odgovor nije niz:", data);
+          setProizvodi([]);
+        }
+      })
+      .catch(err => {
+        console.error("Greška:", err);
+        setProizvodi([]);
+      });
+    fetch("http://localhost:8000/api/grupe/", { headers: authHeader })
+    .then(res => res.json())
+    .then(data => {
+      if (Array.isArray(data)) {
+        setGrupe(data);
+      } else {
+        console.error("Grupe nisu niz:", data);
+        setGrupe([]);
+      }
+    })
+    .catch(err => {
+      console.error("Greška pri učitavanju grupa:", err);
+      setGrupe([]);
+    });
   }, []);
 
-const dodajProizvod = async () => {
-  const formData = new FormData();
-  formData.append("naziv", novi.naziv);
-  formData.append("opis", novi.opis);
-  formData.append("cena", novi.cena);
-  if (slika) formData.append("slika", slika);
+  const dodajProizvod = async () => {
+    const formData = new FormData();
+    formData.append("naziv", novi.naziv);
+    formData.append("opis", novi.opis);
+    formData.append("cena", novi.cena);
+    formData.append("grupa", novi.grupa);
+    if (slika) formData.append("slika", slika);
 
-  const res = await fetch("http://localhost:8000/api/proizvodi/", {
-    method: "POST",
-    headers: {
-      Authorization: `Bearer ${token}`,
-    },
-    body: formData,
-  });
+    const res = await fetch("http://localhost:8000/api/proizvodi/", {
+      method: "POST",
+      headers: authHeader,
+      body: formData,
+    });
 
-  if (res.ok) {
-    const data = await res.json();
-    setProizvodi(prev => [...prev, data]);
-    setNovi({ naziv: "", opis: "", cena: "" });
-    setSlika(null);
-  }
-};
+    if (res.ok) {
+      const data = await res.json();
+      setProizvodi(prev => [...prev, data]);
+      setNovi({ naziv: "", opis: "", cena: "" });
+      setSlika(null);
+    }
+  };
 
   const obrisiProizvod = async (id) => {
     await fetch(`http://localhost:8000/api/proizvodi/${id}/`, {
       method: "DELETE",
-      headers,
+      headers: authHeader,
     });
     setProizvodi(prev => prev.filter(p => p.id !== id));
+  };
+
+  const sacuvajCenu = async (id) => {
+    const res = await fetch(`http://localhost:8000/api/proizvodi/${id}/`, {
+      method: "PATCH",
+      headers: {
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ cena: novaCena }),
+    });
+
+    if (res.ok) {
+      const updated = await res.json();
+      setProizvodi(prev =>
+        prev.map(p => (p.id === id ? updated : p))
+      );
+      setEditId(null);
+      setNovaCena("");
+    } else {
+      console.error("Neuspešan update:", await res.text());
+    }
   };
 
   return (
@@ -55,18 +102,48 @@ const dodajProizvod = async () => {
       <ul>
         {proizvodi.map(p => (
           <li key={p.id}>
-            {p.naziv} - {p.opis} - {p.cena} RSD
+            {p.naziv} - {p.opis} - {p.grupa_naziv || "Bez grupe"} -
+            {editId === p.id ? (
+              <>
+                <input
+                  type="number"
+                  value={novaCena}
+                  onChange={e => setNovaCena(e.target.value)}
+                  style={{ width: "80px" }}
+                />
+                <button onClick={() => sacuvajCenu(p.id)}>Sačuvaj</button>
+                <button onClick={() => setEditId(null)}>Otkaži</button>
+              </>
+            ) : (
+              <>
+                {p.cena} RSD
+                <button onClick={() => {
+                  setEditId(p.id);
+                  setNovaCena(p.cena);
+                }}>Izmeni cenu</button>
+              </>
+            )}
             <button onClick={() => obrisiProizvod(p.id)}>Obriši</button>
           </li>
         ))}
       </ul>
 
       <h3>Dodaj proizvod</h3>
+      
       <input
         placeholder="Naziv"
         value={novi.naziv}
         onChange={e => setNovi({ ...novi, naziv: e.target.value })}
       /><br />
+      <select
+        value={novi.grupa || ""}
+        onChange={e => setNovi({ ...novi, grupa: e.target.value })}
+      >
+        <option value="">-- Izaberi grupu --</option>
+        {grupe.map(g => (
+          <option key={g.id} value={g.id}>{g.naziv}</option>
+        ))}
+      </select><br />
       <input
         placeholder="Opis"
         value={novi.opis}
@@ -77,6 +154,11 @@ const dodajProizvod = async () => {
         type="number"
         value={novi.cena}
         onChange={e => setNovi({ ...novi, cena: e.target.value })}
+      /><br />
+      <input
+        type="file"
+        accept="image/*"
+        onChange={e => setSlika(e.target.files[0])}
       /><br />
       <button onClick={dodajProizvod}>Dodaj</button>
     </div>

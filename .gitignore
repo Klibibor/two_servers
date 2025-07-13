@@ -1,8 +1,20 @@
+# Virtualno okruženje
 venv/
+
+# Python cache fajlovi
 __pycache__/
 *.pyc
 *.pyo
 *.pyd
+
+# SQLite baza (ako se koristi lokalno)
 db.sqlite3
+
+# Environment varijable
 .env
+
+# Log fajlovi
 *.log
+
+# VSCode folder
+.vscode/

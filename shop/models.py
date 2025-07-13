@@ -16,4 +16,4 @@ class Proizvod(models.Model):
 
 
     def __str__(self):
-        return f"{self.naziv} ({self.grupa.naziv})"
+        return f"{self.naziv} ({self.grupa.naziv if self.grupa else 'Bez grupe'})"

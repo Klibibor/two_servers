@@ -4,6 +4,8 @@ from .models import GrupaProizvoda, Proizvod
 
 class ProizvodSerializer(serializers.ModelSerializer):
     slika = serializers.ImageField(use_url=True)
+    grupa_naziv = serializers.CharField(source='grupa.naziv', read_only=True)
+
     class Meta:
         model = Proizvod
         fields = '__all__'
