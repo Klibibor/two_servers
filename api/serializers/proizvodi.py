@@ -1,6 +1,5 @@
 from rest_framework import serializers
-from django.contrib.auth.models import User
-from .models import GrupaProizvoda, Proizvod
+from shop.models import Proizvod, GrupaProizvoda
 
 class ProizvodSerializer(serializers.ModelSerializer):
     slika = serializers.ImageField(use_url=True)
@@ -16,8 +15,3 @@ class GrupaProizvodaSerializer(serializers.ModelSerializer):
     class Meta:
         model = GrupaProizvoda
         fields = ['id', 'naziv', 'proizvodi']
-
-class UserSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ['id', 'username', 'email', 'is_staff']

@@ -1,15 +1,16 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
-from .views import LoginAPIView, UserViewSet
-from .views import CurrentUserView 
+
+from api.views.proizvodi import ProizvodViewSet, GrupaProizvodaViewSet
+from api.views.korisnici import KorisnikViewSet
+from api.views.auth import MeAPIView
 
 router = DefaultRouter()
-router.register(r'korisnici', UserViewSet)
-
+router.register(r'proizvodi', ProizvodViewSet)
+router.register(r'grupe', GrupaProizvodaViewSet)
+router.register(r'korisnici', KorisnikViewSet)
 
 urlpatterns = [
-    path('login/', LoginAPIView.as_view(), name='login-api'),
     path('', include(router.urls)),
-    path('api/me/', CurrentUserView.as_view(), name='me'),
-    path('api/', include(router.urls)),
+    path("me/", MeAPIView.as_view()),
 ]
