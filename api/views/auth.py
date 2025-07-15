@@ -11,5 +11,5 @@ class MeAPIView(APIView):                       #MeAPIView je dete klase APIView
             "id": user.id,
             "username": user.username,
             "email": user.email,
-            "is_staff": user.is_staff
+            "groups": list(request.user.groups.values_list("name", flat=True)),
         })

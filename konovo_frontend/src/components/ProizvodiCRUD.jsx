@@ -2,15 +2,17 @@ import { useEffect, useState } from "react";
 
 function ProizvodiCRUD() {
   const [proizvodi, setProizvodi] = useState([]);
-  const [novi, setNovi] = useState({ naziv: "", opis: "", cena: "" });
-  const token = localStorage.getItem("jwt");
+  const [novi, setNovi] = useState({ naziv: "", opis: "", cena: "", grupa: "" });
   const [slika, setSlika] = useState(null);
   const [editId, setEditId] = useState(null);
   const [novaCena, setNovaCena] = useState("");
   const [grupe, setGrupe] = useState([]);
+  const [user, setUser] = useState(null);
+
+  const token = localStorage.getItem("jwt");
 
   const authHeader = {
-    Authorization: `Bearer ${token}`
+    Authorization: `Bearer ${token}`,
   };
 
   useEffect(() => {
@@ -20,28 +22,26 @@ function ProizvodiCRUD() {
         if (Array.isArray(data)) {
           setProizvodi(data);
         } else {
-          console.error("Odgovor nije niz:", data);
           setProizvodi([]);
         }
       })
-      .catch(err => {
-        console.error("Greška:", err);
-        setProizvodi([]);
-      });
+      .catch(() => setProizvodi([]));
+
     fetch("http://localhost:8000/api/grupe/", { headers: authHeader })
-    .then(res => res.json())
-    .then(data => {
-      if (Array.isArray(data)) {
-        setGrupe(data);
-      } else {
-        console.error("Grupe nisu niz:", data);
-        setGrupe([]);
-      }
-    })
-    .catch(err => {
-      console.error("Greška pri učitavanju grupa:", err);
-      setGrupe([]);
-    });
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          setGrupe(data);
+        } else {
+          setGrupe([]);
+        }
+      })
+      .catch(() => setGrupe([]));
+
+    fetch("http://localhost:8000/api/me/", { headers: authHeader })
+      .then(res => res.json())
+      .then(data => setUser(data))
+      .catch(() => setUser(null));
   }, []);
 
   const dodajProizvod = async () => {
@@ -61,7 +61,7 @@ function ProizvodiCRUD() {
     if (res.ok) {
       const data = await res.json();
       setProizvodi(prev => [...prev, data]);
-      setNovi({ naziv: "", opis: "", cena: "" });
+      setNovi({ naziv: "", opis: "", cena: "", grupa: "" });
       setSlika(null);
     }
   };
@@ -86,13 +86,9 @@ function ProizvodiCRUD() {
 
     if (res.ok) {
       const updated = await res.json();
-      setProizvodi(prev =>
-        prev.map(p => (p.id === id ? updated : p))
-      );
+      setProizvodi(prev => prev.map(p => (p.id === id ? updated : p)));
       setEditId(null);
       setNovaCena("");
-    } else {
-      console.error("Neuspešan update:", await res.text());
     }
   };
 
@@ -102,7 +98,7 @@ function ProizvodiCRUD() {
       <ul>
         {proizvodi.map(p => (
           <li key={p.id}>
-            {p.naziv} - {p.opis} - {p.grupa_naziv || "Bez grupe"} -
+            {p.naziv} - {p.opis} - {p.grupa_naziv || "Bez grupe"} -{" "}
             {editId === p.id ? (
               <>
                 <input
@@ -116,7 +112,7 @@ function ProizvodiCRUD() {
               </>
             ) : (
               <>
-                {p.cena} RSD
+                {p.cena} RSD{" "}
                 <button onClick={() => {
                   setEditId(p.id);
                   setNovaCena(p.cena);
@@ -128,39 +124,44 @@ function ProizvodiCRUD() {
         ))}
       </ul>
 
-      <h3>Dodaj proizvod</h3>
-      
-      <input
-        placeholder="Naziv"
-        value={novi.naziv}
-        onChange={e => setNovi({ ...novi, naziv: e.target.value })}
-      /><br />
-      <select
-        value={novi.grupa || ""}
-        onChange={e => setNovi({ ...novi, grupa: e.target.value })}
-      >
-        <option value="">-- Izaberi grupu --</option>
-        {grupe.map(g => (
-          <option key={g.id} value={g.id}>{g.naziv}</option>
-        ))}
-      </select><br />
-      <input
-        placeholder="Opis"
-        value={novi.opis}
-        onChange={e => setNovi({ ...novi, opis: e.target.value })}
-      /><br />
-      <input
-        placeholder="Cena"
-        type="number"
-        value={novi.cena}
-        onChange={e => setNovi({ ...novi, cena: e.target.value })}
-      /><br />
-      <input
-        type="file"
-        accept="image/*"
-        onChange={e => setSlika(e.target.files[0])}
-      /><br />
-      <button onClick={dodajProizvod}>Dodaj</button>
+      {user && user.groups.includes("JWT") ? (
+        <>
+          <h3>Dodaj proizvod</h3>
+          <input
+            placeholder="Naziv"
+            value={novi.naziv}
+            onChange={e => setNovi({ ...novi, naziv: e.target.value })}
+          /><br />
+          <select
+            value={novi.grupa}
+            onChange={e => setNovi({ ...novi, grupa: e.target.value })}
+          >
+            <option value="">-- Izaberi grupu --</option>
+            {grupe.map(g => (
+              <option key={g.id} value={g.id}>{g.naziv}</option>
+            ))}
+          </select><br />
+          <input
+            placeholder="Opis"
+            value={novi.opis}
+            onChange={e => setNovi({ ...novi, opis: e.target.value })}
+          /><br />
+          <input
+            placeholder="Cena"
+            type="number"
+            value={novi.cena}
+            onChange={e => setNovi({ ...novi, cena: e.target.value })}
+          /><br />
+          <input
+            type="file"
+            accept="image/*"
+            onChange={e => setSlika(e.target.files[0])}
+          /><br />
+          <button onClick={dodajProizvod}>Dodaj</button>
+        </>
+      ) : (
+        user && <p style={{ color: "gray" }}>Nemate dozvolu za dodavanje proizvoda.</p>
+      )}
     </div>
   );
 }

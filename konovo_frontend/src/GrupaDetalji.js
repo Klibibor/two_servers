@@ -1,6 +1,7 @@
-import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { isAuthenticated } from './utils/auth';
+  import './App.css';                                                                     //uvodi css
+  import { useState, useEffect } from 'react';                                            //state effect, kao getter setter
+  import { useParams, useNavigate } from 'react-router-dom';                               //funkcija za resavanje url-ova
+  import { isAuthenticated } from './utils/auth';                                         //provera autentifikacije iza baze djanga
 import './App.css';
 
 function GrupaDetalji() {
