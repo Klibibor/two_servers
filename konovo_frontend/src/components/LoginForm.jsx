@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 function LoginForm() {
-  const [username, setUsername] = useState(""); // <-- umesto email
+  const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [greska, setGreska] = useState("");
   const navigate = useNavigate();
@@ -16,13 +16,15 @@ function LoginForm() {
       const res = await fetch("http://localhost:8000/api/token/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username, password }), // <-- koristi username
+        body: JSON.stringify({ username, password }),
       });
 
       const data = await res.json();
       if (res.ok) {
-        localStorage.setItem("jwt", data.access); // ← koristi access token
-        navigate("/proizvodi");
+        localStorage.setItem("jwt", data.access);
+
+        // 🔁 PRISILNI RELOAD → automatski osvežava Layout (iz `index.js`)
+        window.location.href = "/";
       } else {
         setGreska(data.error || "Greška pri prijavi.");
       }
@@ -37,7 +39,7 @@ function LoginForm() {
       {greska && <p style={{ color: "red" }}>{greska}</p>}
       <input
         type="text"
-        placeholder="Korisničko ime (ili email ako ti je username email)"
+        placeholder="Korisničko ime"
         value={username}
         onChange={(e) => setUsername(e.target.value)}
         required

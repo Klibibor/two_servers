@@ -1,70 +1,71 @@
-  import './App.css';                                                                     //uvodi css
-  import { useState, useEffect } from 'react';                                            //state effect, kao getter setter
-  import { Link, useNavigate } from 'react-router-dom';                                   //funkcija za resavanje url-ova
-  import { isAuthenticated } from './utils/auth';                                         //provera autentifikacije iza baze djanga
-  // import KorisniciCRUD from "./components/KorisniciCRUD"; // ← uključi po potrebi
-                                                                                          //varijable
-  function App() {                                                                        //backend frontenda za prikaz stranice
-    const [grupe, setGrupe] = useState([]);                                               //grupe postavlja da ce biti array
-    const [greska, setGreska] = useState("");                                             //greska postavlja da ce biti string
-    const navigate = useNavigate();                                                       //navigate pozivanje objekta
+import './App.css';                                                                       // Uvoz stilova iz App.css
+import { useState, useEffect } from 'react';                                               // React hookovi za stanje i efekte
+import { Link, useNavigate } from 'react-router-dom';                                      // Link za navigaciju, useNavigate za preusmeravanje
 
-    useEffect(() => {                                                                     //useEffect ovo ce se ucitavati iz backenda
-      if (!isAuthenticated()) {                                                           //pruzima da li je autenitfikovan korisnik
-        navigate('/login');
-        return;
-      }
+function App() {                                                                           // Komponenta App (pocetni ekran aplikacije)
+  const [grupe, setGrupe] = useState([]);                                                  // State koji čuva niz grupa iz backenda
+  const [greska, setGreska] = useState("");                                                // State za prikaz poruke o grešci
+  const navigate = useNavigate();                                                          // Hook za programsku navigaciju (npr. nakon greške)
 
-      const token = localStorage.getItem('jwt');                                          //preuzima token iz lokalno storrage
-                                                                                          //uporedjuje ga sa backand
-      fetch('http://127.0.0.1:8000/api/grupe/', {
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
+  useEffect(() => {                                                                        // useEffect se pokreće kada se komponenta učita
+    const token = localStorage.getItem('jwt');                                             // Dohvati JWT token iz localStorage
+
+    // Definiši početni headers objekat
+    const headers = {
+      'Content-Type': 'application/json',
+    };
+
+    // Ako postoji token, dodaj Authorization header
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;                                           // Backend proverava da li je korisnik u JWT grupi
+    }
+
+    // Fetch ka backendu (Django REST API) da dobije sve grupe
+    fetch('http://127.0.0.1:8000/api/grupe/', { headers })                                 // API endpoint za grupe proizvoda
+      .then((res) => {
+        if (!res.ok) {                                                                     // Ako server vrati status koji nije OK
+          throw new Error("Greška prilikom učitavanja");                                   // Baci grešku
+        }
+        return res.json();                                                                 // Inače, parsiraj odgovor kao JSON
       })
-        .then((res) => {                                                                  //mogucnosti prema onoga sto procita iz tokena
-          if (!res.ok) {                                                                  //nije dobar
-            throw new Error("Neautorizovan pristup");
-          }
-          return res.json();                                                              //vraca render
-        })
-        .then((data) => {                                                                 //preuzima iz backend
-          if (Array.isArray(data)) {                                                      //grupe
-            setGrupe(data); 
-          } else {
-            setGreska("Neočekivan odgovor sa servera.");                                  //ako nema grupe
-          }
-        })
-        .catch((err) => {                                                                 //hvatanje greski
-          console.error('Greška prilikom učitavanja grupa:', err);                        //ispis + greska koju daje program
-          setGreska("Neuspešno učitavanje. Možda je istekao token.");                     //ako nije jedna od sistemskih mozda je token
-          navigate('/login');                                                             //vraca na login
-        });
-    }, [navigate]);
+      .then((data) => {
+        if (Array.isArray(data)) {                                                         // Proveri da li je dobijen niz (array)
+          setGrupe(data);                                                                  // Ako jeste, postavi grupe
+        } else {
+          setGreska("Neočekivan odgovor sa servera.");                                     // Ako nije array, postavi poruku o grešci
+        }
+      })
+      .catch((err) => {                                                                    // Hvatamo bilo koju grešku tokom fetch-a
+        console.error('Greška prilikom učitavanja grupa:', err);                           // Ispisi grešku u konzolu
+        setGreska("Neuspešno učitavanje. Možda je istekao token.");                        // Prikaz korisniku
+        navigate('/login');                                                                // Vrati korisnika na login stranicu
+      });
+  }, []);                                                                                  // useEffect se pokreće samo jednom, pri učitavanju
 
-    return (                                                                              //vracanje HTML-a
-      <div className="app-container">
-        <h2>Grupe proizvoda</h2>                                                          {/* header */}
-        {greska && <p style={{ color: "red" }}>{greska}</p>}                              {/* stilizacija slova greske */}
-        <main className="product-grid">                                               
-          {grupe.map((grupa) => (
-            <div key={grupa.id} className="product-card">
-              <div className="product-img" />
-              <div className="product-info">
-                <h3>{grupa.naziv}</h3>
-                <p>{grupa.opis}</p>
-                <Link to={`/grupa/${grupa.id}`}>
-                  <button>Prikaži proizvode</button>
-                </Link>
-              </div>
+  return (                                                                                 // JSX koji se prikazuje na početnoj stranici
+    <div className="app-container">                                                        {/* Glavni wrapper */}
+      <h2>Grupe proizvoda</h2>                                                             {/* Naslov stranice */}
+
+      {greska && <p style={{ color: "red" }}>{greska}</p>}                                 {/* Ako postoji greška, prikaži je */}
+
+      <main className="product-grid">                                                      {/* Glavna mreža proizvoda */}
+        {grupe.map((grupa) => (                                                            // Iteriraj kroz sve grupe
+          <div key={grupa.id} className="product-card">                                    {/* Kartica za svaku grupu */}
+            <div className="product-img" />                                                {/* Placeholder za sliku */}
+            <div className="product-info">                                                 {/* Informacije o grupi */}
+              <h3>{grupa.naziv}</h3>                                                       {/* Naziv grupe */}
+              <p>{grupa.opis}</p>                                                          {/* Opis grupe (ako postoji) */}
+              <Link to={`/grupa/${grupa.id}`}>                                            {/* Link ka detaljima grupe */}
+                <button>Prikaži proizvode</button>                                         {/* Dugme */}
+              </Link>
             </div>
-          ))}
-        </main>
+          </div>
+        ))}
+      </main>
 
-        {/* <KorisniciCRUD /> ← uključi po potrebi */}
-      </div>
-    );
-  }
+      {/* <KorisniciCRUD /> ← uključi po potrebi ako želiš da prikažeš administraciju ovde */}
+    </div>
+  );
+}
 
-  export default App;
+export default App;                                                                         // Eksport komponente da bi mogla da se koristi u drugim delovima aplikacije

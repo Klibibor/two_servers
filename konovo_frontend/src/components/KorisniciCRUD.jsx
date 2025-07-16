@@ -12,53 +12,70 @@ function KorisniciCRUD() {
     Authorization: `Bearer ${token}`,
   };
 
-useEffect(() => {
-  const fetchKorisnici = async () => {
-    const token = localStorage.getItem("jwt");
+  useEffect(() => {
+    const fetchKorisnici = async () => {
+      try {
+        const res = await fetch("http://localhost:8000/api/korisnici/", {
+          headers,
+        });
 
-    const res = await fetch("http://localhost:8000/api/korisnici/", {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-    });
+        if (!res.ok) {
+          console.error("Greška pri fetchovanju:", res.status);
+          return;
+        }
 
-    if (res.status === 401) {
-      console.error("Unauthorized – token nije validan ili nedostaje.");
-    }
+        const data = await res.json();
+        console.log("Korisnici:", data);
+        setKorisnici(data);
+      } catch (err) {
+        console.error("Greška u fetch:", err);
+      }
+    };
 
-    const data = await res.json();
-    console.log("Korisnici:", data);
-    setKorisnici(data);
-  };
-
-  fetchKorisnici();
-}, []);
+    fetchKorisnici();
+  }, []);
 
   const dodajKorisnika = async () => {
-    const res = await fetch("http://localhost:8000/api/korisnici/", {
-      method: "POST",
-      headers,
-      body: JSON.stringify(novi),
-    });
-    if (res.ok) {
+    try {
+      const res = await fetch("http://localhost:8000/api/korisnici/", {
+        method: "POST",
+        headers,
+        body: JSON.stringify(novi),
+      });
+
       const data = await res.json();
-      setKorisnici(prev => [...prev, data]);
-      setNovi({ username: "", email: "", password: "" });
+
+      if (res.ok) {
+        setKorisnici(prev => [...prev, data]);
+        setNovi({ username: "", email: "", password: "" });
+      } else {
+        console.error("Greška pri dodavanju:", data);
+      }
+    } catch (err) {
+      console.error("Greška:", err);
     }
   };
 
   const obrisiKorisnika = async (id) => {
-    await fetch(`http://localhost:8000/api/korisnici/${id}/`, {
-      method: "DELETE",
-      headers,
-    });
-    setKorisnici(prev => prev.filter(k => k.id !== id));
+    try {
+      const res = await fetch(`http://localhost:8000/api/korisnici/${id}/`, {
+        method: "DELETE",
+        headers,
+      });
+
+      if (res.ok) {
+        setKorisnici(prev => prev.filter(k => k.id !== id));
+      } else {
+        console.error("Greška pri brisanju:", await res.json());
+      }
+    } catch (err) {
+      console.error("Greška:", err);
+    }
   };
 
-if (!Array.isArray(korisnici)) {
-return <div>Greška: {korisnici.detail || "Nepoznata greška."}</div>;
-}
+  if (!Array.isArray(korisnici)) {
+    return <div>Greška: {korisnici.detail || "Nepoznata greška."}</div>;
+  }
 
   return (
     <div>

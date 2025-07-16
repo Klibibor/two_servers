@@ -1,15 +1,38 @@
 from rest_framework.views import APIView
-from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.views import TokenObtainPairView
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework import serializers
 
-class MeAPIView(APIView):                       #MeAPIView je dete klase APIView 
-    permission_classes = [IsAuthenticated]      #znaci ako je autenitfikovan korisnk
 
-    def get(self, request):                     #moze da vidi podatke o sebi
-        user = request.user                     #tako sto u url 
+class APITokenObtainPairSerializer(TokenObtainPairSerializer):
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        user = self.user
+
+        if not (
+            user.groups.filter(name="JWT").exists() or user.is_superuser
+        ):
+            raise serializers.ValidationError("Nemate pravo na JWT pristup.")
+
+        return data
+
+
+class APITokenObtainPairView(TokenObtainPairView):
+    serializer_class = APITokenObtainPairSerializer
+
+
+class MeAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        user = request.user
         return Response({
             "id": user.id,
             "username": user.username,
             "email": user.email,
-            "groups": list(request.user.groups.values_list("name", flat=True)),
+            "is_staff": user.is_staff,
+            "is_superuser": user.is_superuser,  # ← VAŽNO!
+            "groups": list(user.groups.values_list("name", flat=True)),
         })

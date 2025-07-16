@@ -124,7 +124,7 @@ function ProizvodiCRUD() {
         ))}
       </ul>
 
-      {user && user.groups.includes("JWT") ? (
+      {user && ((user.groups?.includes("JWT")) || user.is_superuser) ? (
         <>
           <h3>Dodaj proizvod</h3>
           <input

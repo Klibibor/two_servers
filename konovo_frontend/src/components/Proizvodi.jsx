@@ -1,16 +1,8 @@
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { isAuthenticated } from "../utils/auth";
+// Proizvodi.jsx
+import React from "react";
 
+// Jednostavna stranica za prikaz proizvoda
 function Proizvodi() {
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    if (!isAuthenticated()) {
-      navigate("/login");
-    }
-  }, [navigate]);
-
   return (
     <div>
       <h2>Dobrodošli na stranicu sa proizvodima!</h2>

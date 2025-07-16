@@ -21,8 +21,8 @@ root.render(
           <Route path="grupa/:id" element={<GrupaDetalji />} />
           <Route path="login" element={<LoginForm />} />
           <Route path="proizvodi" element={<Proizvodi />} />
-          <Route path="korisnici" element={<KorisniciCRUD />} />      {/* ← ispravno */}
-          <Route path="proizvodi-crud" element={<ProizvodiCRUD />} /> {/* ← ispravno */}
+          <Route path="korisnici" element={<KorisniciCRUD />} />
+          <Route path="proizvodi-crud" element={<ProizvodiCRUD />} />
         </Route>
       </Routes>
     </BrowserRouter>
