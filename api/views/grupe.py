@@ -6,4 +6,5 @@ from rest_framework.permissions import AllowAny
 class GrupaProizvodaViewSet(ModelViewSet):
     queryset = GrupaProizvoda.objects.all()
     serializer_class = GrupaProizvodaSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [AllowAny]  # ← SVIMA dozvoljeno da čitaju
+    http_method_names = ['get']  # ← Ako želiš da bude samo čitanje

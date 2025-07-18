@@ -4,12 +4,12 @@ import { getUserFromToken } from '../utils/auth';
 function ProtectedRoute({ children, allowedRoles = [] }) {
   const user = getUserFromToken();
 
-  if (!user) {
-    return <Navigate to="/login" />;
-  }
+  if (!user) return <Navigate to="/login" />;
 
-  // Proveri da li korisnik ima jednu od dozvoljenih rola
-  if (allowedRoles.length > 0 && !allowedRoles.includes(user.role)) {
+  if (user.is_superuser) return children;
+
+  const role = user.role || user.groups?.[0];
+  if (allowedRoles.length > 0 && !allowedRoles.includes(role)) {
     return <Navigate to="/" />;
   }
 

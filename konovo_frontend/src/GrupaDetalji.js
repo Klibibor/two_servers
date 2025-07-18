@@ -1,31 +1,24 @@
-  import './App.css';                                                                     //uvodi css
-  import { useState, useEffect } from 'react';                                            //state effect, kao getter setter
-  import { useParams, useNavigate } from 'react-router-dom';                               //funkcija za resavanje url-ova
-  import { isAuthenticated } from './utils/auth';                                         //provera autentifikacije iza baze djanga
 import './App.css';
+import { useState, useEffect } from 'react';
+import { useParams } from 'react-router-dom';
 
 function GrupaDetalji() {
   const { id } = useParams();
-  const navigate = useNavigate();
   const [proizvodi, setProizvodi] = useState([]);
 
   useEffect(() => {
-    if (!isAuthenticated()) {
-      navigate('/login');
-      return;
-    }
-
     const token = localStorage.getItem('jwt');
 
-    fetch(`http://127.0.0.1:8000/api/proizvodi/?grupa=${id}`, {
-      headers: {
-        Authorization: `Bearer ${token}`,
-      },
-    })
+    const headers = {};
+    if (token) {
+      headers.Authorization = `Bearer ${token}`;
+    }
+
+    fetch(`http://127.0.0.1:8000/api/proizvodi/?grupa=${id}`, { headers })
       .then((res) => res.json())
       .then((data) => setProizvodi(data))
       .catch((err) => console.error('Greška pri učitavanju proizvoda:', err));
-  }, [id, navigate]);
+  }, [id]);
 
   return (
     <div className="app-container">

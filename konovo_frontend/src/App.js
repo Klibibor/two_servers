@@ -38,7 +38,6 @@ function App() {                                                                
       .catch((err) => {                                                                    // Hvatamo bilo koju grešku tokom fetch-a
         console.error('Greška prilikom učitavanja grupa:', err);                           // Ispisi grešku u konzolu
         setGreska("Neuspešno učitavanje. Možda je istekao token.");                        // Prikaz korisniku
-        navigate('/login');                                                                // Vrati korisnika na login stranicu
       });
   }, []);                                                                                  // useEffect se pokreće samo jednom, pri učitavanju
 
@@ -62,8 +61,6 @@ function App() {                                                                
           </div>
         ))}
       </main>
-
-      {/* <KorisniciCRUD /> ← uključi po potrebi ako želiš da prikažeš administraciju ovde */}
     </div>
   );
 }
