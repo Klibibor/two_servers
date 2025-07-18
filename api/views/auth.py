@@ -7,6 +7,17 @@ from rest_framework import serializers
 
 
 class APITokenObtainPairSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+
+        # Dodaj dodatne informacije u token payload
+        token['username'] = user.username
+        token['is_superuser'] = user.is_superuser
+        token['groups'] = list(user.groups.values_list('name', flat=True))
+
+        return token
+
     def validate(self, attrs):
         data = super().validate(attrs)
         user = self.user
@@ -17,6 +28,7 @@ class APITokenObtainPairSerializer(TokenObtainPairSerializer):
             raise serializers.ValidationError("Nemate pravo na JWT pristup.")
 
         return data
+
 
 
 class APITokenObtainPairView(TokenObtainPairView):

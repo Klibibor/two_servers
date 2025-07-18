@@ -2,10 +2,10 @@ import { Routes, Route } from 'react-router-dom';
 import Layout from '../layout/Layout';
 import Home from '../pages/Home';
 import GrupaDetalji from '../pages/GrupaDetalji';
-import Proizvodi from '../pages/Proizvodi';
-import ProizvodiCRUD from '../pages/ProizvodiCRUD';
-import KorisniciCRUD from '../pages/KorisniciCRUD';
-import Login from '../pages/Login';
+import Proizvodi from '../components/Proizvodi';
+import ProizvodiCRUD from '../components/ProizvodiCRUD';
+import KorisniciCRUD from '../components/KorisniciCRUD';
+import LoginForm from '../components/LoginForm';
 import ProtectedRoute from '../components/ProtectedRoute';
 
 export default function AppRoutes() {
@@ -15,14 +15,16 @@ export default function AppRoutes() {
         <Route index element={<Home />} />
         <Route path="grupa/:id" element={<GrupaDetalji />} />
         <Route path="proizvodi" element={<Proizvodi />} />
-        <Route path="login" element={<Login />} />
+        <Route path="login" element={<LoginForm />} />
+
         <Route path="proizvodi-crud" element={
-          <ProtectedRoute allowedRoles={['JWT']}>
+          <ProtectedRoute allowedRoles={['JWT', 'jwt', 'admin']}>
             <ProizvodiCRUD />
           </ProtectedRoute>
         } />
+
         <Route path="korisnici" element={
-          <ProtectedRoute allowedRoles={['JWT']}>
+          <ProtectedRoute allowedRoles={['admin']}>
             <KorisniciCRUD />
           </ProtectedRoute>
         } />

@@ -8,8 +8,11 @@ function ProtectedRoute({ children, allowedRoles = [] }) {
 
   if (user.is_superuser) return children;
 
-  const role = user.role || user.groups?.[0];
-  if (allowedRoles.length > 0 && !allowedRoles.includes(role)) {
+  // normalizuj grupu
+  const role = (user.role || user.groups?.[0] || "").toLowerCase();
+  const normalizedAllowed = allowedRoles.map(r => r.toLowerCase());
+
+  if (normalizedAllowed.length > 0 && !normalizedAllowed.includes(role)) {
     return <Navigate to="/" />;
   }
 

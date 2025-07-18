@@ -1,4 +1,4 @@
-import './App.css';
+import '../App.css';
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 
@@ -7,9 +7,12 @@ function Home() {
   const [greska, setGreska] = useState("");
 
   useEffect(() => {
-    const token = localStorage.getItem('jwt');
-    const headers = { 'Content-Type': 'application/json' };
-    if (token) headers.Authorization = `Bearer ${token}`;
+  const token = localStorage.getItem('jwt');
+  const headers = { 'Content-Type': 'application/json' };
+
+  if (token && token !== "undefined") {
+    headers.Authorization = `Bearer ${token}`;
+}
 
     fetch('http://127.0.0.1:8000/api/grupe/', { headers })
       .then(res => res.json())
