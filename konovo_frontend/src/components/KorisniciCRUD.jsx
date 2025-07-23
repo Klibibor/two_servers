@@ -12,26 +12,25 @@ function KorisniciCRUD() {
     Authorization: `Bearer ${token}`,
   };
 
-  useEffect(() => {
-    const fetchKorisnici = async () => {
-      try {
-        const res = await fetch("http://localhost:8000/shop/korisnici/", {
-          headers,
-        });
+  const fetchKorisnici = async () => {
+    try {
+      const res = await fetch("http://localhost:8000/shop/korisnici/", {
+        headers,
+      });
 
-        if (!res.ok) {
-          console.error("Greška pri fetchovanju:", res.status);
-          return;
-        }
-
-        const data = await res.json();
-        console.log("Korisnici:", data);
-        setKorisnici(data);
-      } catch (err) {
-        console.error("Greška u fetch:", err);
+      if (!res.ok) {
+        console.error("Greška pri fetchovanju:", res.status);
+        return;
       }
-    };
 
+      const data = await res.json();
+      setKorisnici(data);
+    } catch (err) {
+      console.error("Greška u fetch:", err);
+    }
+  };
+
+  useEffect(() => {
     fetchKorisnici();
   }, []);
 
@@ -48,6 +47,7 @@ function KorisniciCRUD() {
       if (res.ok) {
         setKorisnici(prev => [...prev, data]);
         setNovi({ username: "", email: "", password: "" });
+        fetchKorisnici(); // ← ovde osvežavaš listu
       } else {
         console.error("Greška pri dodavanju:", data);
       }
@@ -65,6 +65,7 @@ function KorisniciCRUD() {
 
       if (res.ok) {
         setKorisnici(prev => prev.filter(k => k.id !== id));
+        fetchKorisnici();
       } else {
         console.error("Greška pri brisanju:", await res.json());
       }

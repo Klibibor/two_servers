@@ -14,19 +14,21 @@ function ProizvodiCRUD() {
   const authHeader = {
     Authorization: `Bearer ${token}`,
   };
+  // Fetch products from the new endpoint
+  const fetchProizvodi = async () => {
+    try {
+      const res = await fetch("http://localhost:8000/shop/proizvodi/", { headers: authHeader });
+      const data = await res.json();
+      setProizvodi(Array.isArray(data) ? data : []);
+    } catch {
+      setProizvodi([]);
+    }
+  };
 
   useEffect(() => {
-    fetch("http://localhost:8000/shop/proizvodi/", { headers: authHeader })
-      .then(res => res.json())
-      .then(data => {
-        if (Array.isArray(data)) {
-          setProizvodi(data);
-        } else {
-          setProizvodi([]);
-        }
-      })
-      .catch(() => setProizvodi([]));
+    fetchProizvodi();
 
+    // Fetch groups from the new endpoint
     fetch("http://localhost:8000/shop/grupe/", { headers: authHeader })
       .then(res => res.json())
       .then(data => {
@@ -38,12 +40,14 @@ function ProizvodiCRUD() {
       })
       .catch(() => setGrupe([]));
 
+    // Auth/me endpoint remains the same
     fetch("http://localhost:8000/api/me/", { headers: authHeader })
       .then(res => res.json())
       .then(data => setUser(data))
       .catch(() => setUser(null));
   }, []);
 
+  // Add product using the new endpoint
   const dodajProizvod = async () => {
     const formData = new FormData();
     formData.append("naziv", novi.naziv);
@@ -63,17 +67,21 @@ function ProizvodiCRUD() {
       setProizvodi(prev => [...prev, data]);
       setNovi({ naziv: "", opis: "", cena: "", grupa: "" });
       setSlika(null);
+      fetchProizvodi();
     }
   };
 
+  // Delete product using the new endpoint
   const obrisiProizvod = async (id) => {
     await fetch(`http://localhost:8000/shop/proizvodi/${id}/`, {
       method: "DELETE",
       headers: authHeader,
     });
     setProizvodi(prev => prev.filter(p => p.id !== id));
+    fetchProizvodi();
   };
 
+  // Update price using the new endpoint
   const sacuvajCenu = async (id) => {
     const res = await fetch(`http://localhost:8000/shop/proizvodi/${id}/`, {
       method: "PATCH",
