@@ -14,7 +14,7 @@ function Home() {
     headers.Authorization = `Bearer ${token}`;
 }
 
-    fetch('http://127.0.0.1:8000/api/grupe/', { headers })
+    fetch('http://127.0.0.1:8000/shop/grupe/', { headers })
       .then(res => res.json())
       .then(data => Array.isArray(data) ? setGrupe(data) : setGreska("Neočekivan odgovor."))
       .catch(() => setGreska("Greška pri učitavanju grupa."));

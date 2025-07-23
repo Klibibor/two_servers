@@ -16,7 +16,7 @@ function ProizvodiCRUD() {
   };
 
   useEffect(() => {
-    fetch("http://localhost:8000/api/proizvodi/", { headers: authHeader })
+    fetch("http://localhost:8000/shop/proizvodi/", { headers: authHeader })
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {
@@ -27,7 +27,7 @@ function ProizvodiCRUD() {
       })
       .catch(() => setProizvodi([]));
 
-    fetch("http://localhost:8000/api/grupe/", { headers: authHeader })
+    fetch("http://localhost:8000/shop/grupe/", { headers: authHeader })
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {
@@ -52,7 +52,7 @@ function ProizvodiCRUD() {
     formData.append("grupa", novi.grupa);
     if (slika) formData.append("slika", slika);
 
-    const res = await fetch("http://localhost:8000/api/proizvodi/", {
+    const res = await fetch("http://localhost:8000/shop/proizvodi/", {
       method: "POST",
       headers: authHeader,
       body: formData,
@@ -67,7 +67,7 @@ function ProizvodiCRUD() {
   };
 
   const obrisiProizvod = async (id) => {
-    await fetch(`http://localhost:8000/api/proizvodi/${id}/`, {
+    await fetch(`http://localhost:8000/shop/proizvodi/${id}/`, {
       method: "DELETE",
       headers: authHeader,
     });
@@ -75,7 +75,7 @@ function ProizvodiCRUD() {
   };
 
   const sacuvajCenu = async (id) => {
-    const res = await fetch(`http://localhost:8000/api/proizvodi/${id}/`, {
+    const res = await fetch(`http://localhost:8000/shop/proizvodi/${id}/`, {
       method: "PATCH",
       headers: {
         Authorization: `Bearer ${token}`,

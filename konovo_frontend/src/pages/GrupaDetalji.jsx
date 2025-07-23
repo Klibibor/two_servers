@@ -11,7 +11,7 @@ function GrupaDetalji() {
     const headers = {};
     if (token) headers.Authorization = `Bearer ${token}`;
 
-    fetch(`http://127.0.0.1:8000/api/proizvodi/?grupa=${id}`, { headers })
+    fetch(`http://127.0.0.1:8000/shop/proizvodi/?grupa=${id}`, { headers })
       .then(res => res.json())
       .then(setProizvodi)
       .catch(err => console.error('Greška:', err));

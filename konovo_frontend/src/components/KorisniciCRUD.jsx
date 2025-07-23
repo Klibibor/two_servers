@@ -15,7 +15,7 @@ function KorisniciCRUD() {
   useEffect(() => {
     const fetchKorisnici = async () => {
       try {
-        const res = await fetch("http://localhost:8000/api/korisnici/", {
+        const res = await fetch("http://localhost:8000/shop/korisnici/", {
           headers,
         });
 
@@ -37,7 +37,7 @@ function KorisniciCRUD() {
 
   const dodajKorisnika = async () => {
     try {
-      const res = await fetch("http://localhost:8000/api/korisnici/", {
+      const res = await fetch("http://localhost:8000/shop/korisnici/", {
         method: "POST",
         headers,
         body: JSON.stringify(novi),
@@ -58,7 +58,7 @@ function KorisniciCRUD() {
 
   const obrisiKorisnika = async (id) => {
     try {
-      const res = await fetch(`http://localhost:8000/api/korisnici/${id}/`, {
+      const res = await fetch(`http://localhost:8000/shop/korisnici/${id}/`, {
         method: "DELETE",
         headers,
       });
