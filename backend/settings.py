@@ -11,6 +11,8 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 """
 import os
 from pathlib import Path
+from datetime import timedelta
+from corsheaders.defaults import default_headers
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -27,12 +29,38 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
-CORS_ALLOW_ALL_ORIGINS = True
+CORS_ALLOW_ALL_ORIGINS = False
 
+# Allow the frontend dev origin and enable credentialed CORS so cookies can be sent
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
 ]
 
+# Allow credentials (cookies) to be sent cross-origin
+CORS_ALLOW_CREDENTIALS = True
+
+CORS_ALLOW_HEADERS = list(default_headers) + [
+    'authorization',
+    'X-CSRFToken',
+]
+
+# Allow the frontend dev origin for CSRF checks (required when credentials are included)
+CSRF_TRUSTED_ORIGINS = [
+    "http://localhost:3000",
+]
+
+# Development-friendly cookie settings to allow cross-site cookies from the frontend dev server.
+# In production you should use secure cookies and appropriate SameSite settings.
+SESSION_COOKIE_SAMESITE = None
+CSRF_COOKIE_SAMESITE = None
+SESSION_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = False
+
+SIMPLE_JWT = {
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+    "AUTH_HEADER_TYPES": ("Bearer",),
+}
 
 # Application definition
 
@@ -44,30 +72,48 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'shop',
+    'api',  # Add api app for management commands
     'rest_framework',  # ako koristiš Django REST Framework
+    'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',  # Enable token blacklisting
     'corsheaders',
+    "drf_yasg",
 ]
 
 MIDDLEWARE = [
+    'django.middleware.security.SecurityMiddleware',
     'corsheaders.middleware.CorsMiddleware',  # mora biti prvi!
     'django.middleware.common.CommonMiddleware',
-    'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
-
+#REST + Swagger
 REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    "DEFAULT_AUTHENTICATION_CLASSES": [
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        "rest_framework.authentication.SessionAuthentication",
     ],
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
-    ]
+    "DEFAULT_PERMISSION_CLASSES": [
+        "rest_framework.permissions.AllowAny",
+    ],
 }
+SWAGGER_SETTINGS = {
+    "SECURITY_DEFINITIONS": {
+        "Bearer": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header",
+            "description": "Enter: Bearer <access_token>"
+        }
+    },
+    "USE_SESSION_AUTH": False,
+}
+# Silence drf_yasg deprecation about renderer format changes
+# See: DeprecationWarning in drf_yasg.views.py
+SWAGGER_USE_COMPAT_RENDERERS = False
 
 ROOT_URLCONF = 'backend.urls'
 

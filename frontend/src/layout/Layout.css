@@ -1,0 +1,159 @@
+.navbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 8px 16px;
+  background: #fff;
+  border-bottom: 1px solid #ddd;
+}
+
+.left-side {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.left-column {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
+}
+.left-side {
+  display: flex;
+  align-items: center;
+}
+
+.center {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  justify-content: center;
+  flex: 1 1 auto; /* take remaining space so center aligns horizontally */
+  text-align: center;
+}
+
+.logo {
+  font-weight: 700;
+  text-decoration: none;
+  color: #2a2a2a;
+  margin-right: 12px;
+}
+
+.search-container {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-left: 16px;
+}
+
+.menu {
+  display: flex;
+  gap: 12px;
+  margin-left: 24px;
+}
+
+.menu a {
+  text-decoration: none;
+  color: #333;
+}
+
+.icons {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin-left: auto;
+}
+
+.logo {
+  font-weight: 700;
+  font-size: 1.2rem;
+  text-decoration: none;
+  color: #2a2a2a;
+  margin-right: 12px;
+}
+
+.login-info {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-left: 8px;
+}
+
+.login-info-column {
+  display: flex;
+  flex-direction: column;
+  font-size: 0.85rem;
+}
+
+.login-info-label {
+  font-size: 0.75rem;
+  color: #666;
+}
+
+.login-info-value {
+  font-size: 0.9rem;
+}
+
+.footer {
+  margin-top: 40px;
+  padding: 12px;
+  text-align: left;
+  color: #666;
+}
+
+.dropdown {
+  position: relative;
+  background-color: #f1f1f1;
+  display: inline-block;
+  margin-left: 15px;
+}
+
+.hamburger-btn {
+  background: none;
+  border: none;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.dropdown-content {
+  display: block;
+  position: absolute;
+  background-color: #f1f1f1;
+  min-width: 160px;
+  z-index: 1;
+  box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+}
+
+.dropdown-content a {
+  display: block;
+  padding: 10px;
+  text-decoration: none;
+  color: black;
+}
+
+.dropdown-content a:hover {
+  background-color: #ddd;
+}
+
+/* LoginInfo styling */
+.login-info {
+  display: inline-flex;
+  gap: 12px;
+  align-items: center;
+  font-size: 14px; /* slightly larger text */
+}
+
+.login-info-column {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.login-info-label {
+  font-weight: 600;
+}
+
+.login-info-value {
+  font-size: 14px;
+}

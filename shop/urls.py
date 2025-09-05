@@ -2,20 +2,21 @@
 from django.urls import path, include
 from rest_framework.routers import DefaultRouter
 
+# routed from backend/views.py
+
 from shop.views import (
-    ProizvodViewSet,
-    GrupaProizvodaViewSet,
+    ProductViewSet,
+    ProductGroupViewSet,
     KorisnikViewSet
 )
-from api.views.auth import MeAPIView, APITokenObtainPairView
-
+# input functions in /shop.views.py, and rout name
 router = DefaultRouter()
-router.register(r'proizvodi', ProizvodViewSet)
-router.register(r'grupe', GrupaProizvodaViewSet)
-router.register(r'korisnici', KorisnikViewSet)
+router.register(r'products', ProductViewSet)
+router.register(r'groups', ProductGroupViewSet)
+router.register(r'users', KorisnikViewSet)
+
 
 urlpatterns = [
-    path('', include(router.urls)),
-    path('me/', MeAPIView.as_view()),  # /shop/me/
-    path('token/', APITokenObtainPairView.as_view()),  # /shop/token/
+    path('', include(router.urls))
 ]
+# output from functions in /shop.views.py

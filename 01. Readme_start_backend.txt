@@ -1,0 +1,46 @@
+I've made customizable shop
+
+Backend comunicates with API to frontend
+
+with JWT key you can add Products, and only superuser can add new members
+
+Backend part:
+
+Backend is DJango architecture with API features to comunicate with frontend server
+
+i have 3 backend folders
+>backend
+    it has settings.py for managing installed apps and api UI swagger and redoc
+    urls.py that routes to shop folder and api folder
+
+>shop   
+    db.sqlite3
+        database that contains
+            1. Group products data
+            2. Products data
+            3. Users and user groups data
+    models.py
+        manages data from db.sqlite3 for:
+            1. Group products data
+            2. Products data
+    views.py has 3 components  
+        product group
+            shows thegroup of products, supports CRUD from authenticated users
+        product
+            shows all the products inside its group, supports CRUD from authenticated users
+        users 
+            shows info on users, supports CRUD from authenticated users
+>api
+    it contains two folders views and serializers
+        serializers is used to serialize data for the views.py in >shop
+        views
+            has auth.py which contains components for authrization logic
+                1. APITokenObtainPairSerializer - creates tokens only validated users can use
+                2. APITokenObtainPairView - serializes token obtained with APITokenObtainPairSerializer
+                3. ReadOnlyOrJWT - utility used in views that determens which user can use safe methods and which can use CRUD
+                4. MeAPIView - gives info of the curenlt loged on user
+                5. LogoutView - handles logout logic
+
+url logic
+    in main folder - backend, I've imported urls from >api, and in api urls from >shop folders
+    i've made swagger ui for interacting with backend without need for frontend UI
