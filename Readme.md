@@ -204,13 +204,13 @@ For superusers:
 
 ## 🧑‍🔬🔬 **Testing**
 
-### Django Backend Tests (16 tests)
+### Django Backend Tests
 ```bash
 python manage.py test  # Run all Django tests
 python manage.py test api.tests.test_hierarchical_permissions  # Specific test module
 ```
 
-### React Frontend Tests (16 tests)  
+### React Frontend Tests
 ```bash
 cd frontend
 npm test  # Interactive test runner
