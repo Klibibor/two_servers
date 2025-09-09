@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom/client';
 import { render, screen } from '@testing-library/react';
 import AppRoutes from '../AppRoutes';
 
+// input mock for rendering the app for client
 jest.mock('react-dom/client');
 
 

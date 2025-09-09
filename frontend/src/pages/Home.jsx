@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import apiFetch from '../utils/api';
+import { PublicApiFetch } from '../utils/api';
 import { useNavigate } from 'react-router-dom';
 
 // input placeholders for group, loading, navigate
@@ -13,7 +13,7 @@ export default function Home() {
     let mounted = true;
     (async () => {
       try {
-  const res = await apiFetch('/api/groups/');
+        const res = await PublicApiFetch('/api/groups/');
         if (!res.ok) throw new Error('Failed to load groups');
         const data = await res.json();
         if (mounted) setGroups(data);

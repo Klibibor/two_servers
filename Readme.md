@@ -1,109 +1,226 @@
-# Shop
+# 🏭 Shop Management System
 
-Lightweight shop application with a Django REST backend and a React frontend. 
-The main goal is to showcase API, and Django backend server that is connected to React frontend server
-The focus is to make a template web app that is skalable and can be filled with desired components
+Full-stack shop application with Django REST Framework backend and React frontend.
+The main goal is to showcase a scalable e-commerce template with REST API and modern React UI, which can be extended with desired components.
 
-## Explanation of workflow
-Client gets rendered page on frontend server and sees
+## 🛠️ **Tech Stack**
+- **Backend:** Django 5.x, Django REST Framework, JWT Authentication, SQLite
+- **Frontend:** React 18, React Router, Context API, Jest Testing
+- **Authentication:** JWT tokens with hierarchical permissions (Superuser → JWT Group → Regular User)
+
+## This README explains the application workflow - more detailed explanations are in code comments. You can track URLs to backend methods that generate API responses to frontend.
+
+## 📁 **Project Structure**
+```
+two_servers/
+├── 📂 api/                 # Django REST API
+├── 📂 shop/                # Shop models & views  
+├── 📂 backend/             # Django settings
+├── 📂 frontend/src/        # React application
+├── 📂 media/               # Uploaded files
+└── 📄 manage.py            # Django entry point
+```
+
+**Comprehensive test suites included** with detailed explanations for both Django and React.
+
+## 🏃‍♀️‍➡️🏁 **Quick Start**
+
+### Prerequisites
+- Python 3.12+
+- Node.js 18+
+- Git
+
+### Installation & Running
+```bash
+# Backend (Django)
+cd two_servers
+python -m venv .venv
+.venv\Scripts\activate  # Windows
+pip install -r requirements.txt
+python manage.py migrate
+python manage.py runserver  # Runs on http://localhost:8000
+
+# Frontend (React) - New terminal
+cd frontend
+npm install
+npm start  # Runs on http://localhost:3000
+```
+
+### Default Users
+  in Django admin panel you can promote user to be in JWT group
+
+## **Features**
+- 🔐 JWT-based authentication with hierarchical permissions
+- 🛍️ Product management with image uploads
+- 👥 User management (admin panel)
+- ⚖️ Role-based access control (Superuser → JWT Group → Regular)
+- 📱 Responsive React frontend
+- 🧑‍🔬🔬 Comprehensive test coverage
+- 🔄 Auto-token refresh with CSRF protection
+
+## 👷🚧🏭 **Application Architecture**
+The client is served a rendered page by the frontend server and sees:
   ### Layout.js
-    consists of
-      navbar:
-        renders hyperlinks to components on top of the screen
-          Login.js --> form with username and password
-          Logout.js --> resets all data and clears tokenStore
-          Products.js --> shows groups of products that navigate to products of that group
-          Shop.js --> returns to homepage that shows groups of products
-          Administration.js --> panel only users in JWT group and supersuer group can see
-      outlet:
-        renders components in the midle of the screen 
+Navbar:
+  Renders hyperlinks to components at the top of the screen:
+
+    Login.js → Form with username and password
+    Logout.js → Resets all user data and clears tokenStore
+    Products.js → Displays product groups, clicking navigates to products within the group
+    Shop.js → Returns to the homepage showing product groups
+
+Administration:
+
+  Panel visible only to users in the JWT group or to superusers
+
+Outlet:
+
+    Renders selected component in the middle of the screen
+
   ### Login.js
-    sets placeholders for:
-      username --> backend | /api/auth/login/ --> LoginView <-- LoginSerializer
-      password --> backend | /api/auth/login/ --> LoginView <-- LoginSerializer
-        
-    if user is superuser or in jwt group:
-      --> backend will fetch access and refresh token
+  Defines input placeholders for:
 
-    can be logged in as:
-      login --> user with JWT
-      loginSession --. user without JWT
+    username → sent to backend: /api/auth/login/ → handled by LoginView and LoginSerializer
+    password → same flow
 
-    user information goes to AuthContext.js and tokenStore.js
+  Login logic:
+
+    If the user is a superuser or in the JWT group:
+    → Backend returns access and refresh tokens
+
+  User types:
+
+    login → user with JWT group membership
+    loginSession → user without JWT group membership
+
+  User data is stored in AuthContext.js and tokenStore.js.
+  
   ### Logininfo.jsx
-    renders placeholders for user info and fetches info of logged in user from AuthContext.jsx
-      user --> AuthContext.jsx | backend /api/auth/me/ | login --> refreshUser or loginSession
-      loading --> AuthContext.jsx --> boolean function loading while awaiting response
-      role  --> AuthContext.jsx | backend /api/auth/me/ | login --> refreshUser or loginSessi | shows user
-      jwt --> AuthContext.jsx | backend /api/auth/me/ | login --> refreshUser or loginSessi | shows token
-  ### inside Logininfo.jsx --> button for Logout
-    resets all data and clears tokenStore
+Displays:
+
+    User info fetched from AuthContext.jsx via /api/auth/me/
+    Fields shown:
+
+      user → from refreshUser or loginSession
+      loading → boolean from AuthContext.jsx while waiting for response
+      role → user's role
+      jwt → token
+
+ + Includes Logout button that resets all user data and clears the token.
+
   ### Products.js
-    renders:
-      groups by id: --> backend | shop.router->groups included in api/ --> ProductGroupViewSet <-- ProductGroupSerializer
-            ⬇️     
-        on click
-            ⬇️
-      products of that group --> backend | router->products included in api --> ProductViewSet <--    ProductSerializer
+  Renders:
+
+    Product groups by ID → fetched from backend via shop.router: ProductGroupViewSet 
+    ⬇️
+    On click → navigates to:
+    ⬇️
+    Products in the selected group → fetched from: ProductViewSet
+
   ### Shop  same as Products but this one is button
-    renders:
-      groups by id: --> backend | shop.router->groups included in api/ --> ProductGroupViewSet <-- ProductGroupSerializer
-          ⬇️
-      on click
-          ⬇️
-      products of that group navigates to Products.js product of the selected group
+        Same behavior as Products.js, but triggered via a button instead of component route.up
+
   ### Administration.js
-    renders components for specific users
-    for:
-      superuser:
-        KorisniciCRUD --> on click:
-          renders input for:
-            user --> backend | shop.router->users included in api/ --> KorisnikViewSet <-- UserSerializer
-            email --> backend | shop.router->users included in api/ --> KorisnikViewSet <-- UserSerializer
-            password --> backend | shop.router->users included in api/ --> KorisnikViewSet <-- UserSerializer
-            addUser button--> backend | shop.router->users included in api/ --> KorisnikViewSet <-- UserSerializer + addUser for POST method
-        ProizvodiCRUD
-          renders input for:
-            * all products and their prices --> backend | products of that group --> backend | router->products included in api --> ProductViewSet <-- ProductSerializer
-            * Edit price button --> editId --> ProductViewSet + newPrice --> + setProducts
-            * Save button (edit price)--> backend | products of that group --> backend | router->products included in api --> ProductViewSet <-- ProductSerializer [cena] + "PATCH" method
-            * Delete button -->  backend shop.router->products included in api/ --> ProductViewSet <-- ProductSerializer + deleteProduct for DELETE method
-            * Add product menu 
-              renders form for info on product + picture
-              puts them in setNewItem and setImage
-              on click addProduct --> backend shop.router->products included in api/ --> ProductViewSet <-- ProductSerializer + addProduct for POST method
+Visible only to:
 
-      JWT bearer:
-        ProizvodiCRUD
+  Superusers +  JWT group members
 
-## Utilites
+For superusers:
+
+  UsersCRUD
+
+  Renders:
+  input fields for:
+   username, email, password
+  Add User button:
+   sends POST request --> shop.router UserViewSet
+
+  ProductsCRUD
+
+  Renders:
+    All products and prices
+
+    Edit Price button:
+     sets edit Id and new price
+
+    Save button:
+     sends PATCH request to update price
+
+  Delete button:
+   sends DELETE request --> shop.routers ProductViewSet
+
+  Add Product form:
+   Accepts product info and image
+   On submit:
+    sends POST request with form data --> shop.routers ProductViewSet 
+
+  For JWT users:
+
+  Can access ProductsCRUD
+
+## 🛠️⚙️ **Core Utilities**
 
   ### AuthContext
-    sets up data of the curent client, and functions for changing the state
-    data:
-      user
-      token
-      loading
-    functions:
-      refreshUser
-      login
-      loginSession
-      logout
+
+  Manages current user state and related functions.
+
+    Data:
+
+      user --> username and password
+      token --> JWT token
+      loading --> True or False --> when waiting for response
+
+    Functions:
+
+      refreshUser() --> refreshing user and token
+      login() --> for user with JWT token
+      loginSession() --> for user without JWT token
+      logout() --> clears all data
+
   ### tokenStore.js
-    sets up tokenStore for stroing tokens
+
+    Handles storage of tokens.
+
   ### ProtectedRoutes.js
-    checks user data and automaticly rout to home page if data doesent mach
+
+    Checks user data; automatically redirects to the home page if access is unauthorized.
+
   ### Api.js
-    sets crsf token in getCookie
-    when calling refreshToken for refreshing JWT token it will include csrf token
-    adds crsf token in all unsafe methods
+
+    Sets CSRF token using getCookie()
+    Includes CSRF token in unsafe methods (POST, PATCH, DELETE)
+    Uses refreshToken() to renew JWT tokens - with CSRF included in call
+
 ## Renderers
 
-  ### index.html
-    calls "root" which enables Java Script
-  ### index.js
-    creates DOME with all wrappers used
-  ### App.js
-    calls components in layout and Home.js element
+  index.html
+    Contains the root element that enables JavaScript rendering
 
-    
+  index.js
+    Creates the React DOM and wraps the app with providers and context
+
+  App.js
+    Initializes routing and renders Layout and Home.js as main elements
+
+## 🧑‍🔬🔬 **Testing**
+
+### Django Backend Tests (16 tests)
+```bash
+python manage.py test  # Run all Django tests
+python manage.py test api.tests.test_hierarchical_permissions  # Specific test module
+```
+
+### React Frontend Tests (16 tests)  
+```bash
+cd frontend
+npm test  # Interactive test runner
+npm test -- --watchAll=false  # Run once and exit
+```
+
+### Test Coverage
+- **Authentication & Authorization:** JWT permissions, hierarchical access
+- **API Endpoints:** CRUD operations for users, products, groups
+- **Frontend Components:** User interactions, form submissions, navigation
+- **Integration Tests:** Token refresh, CSRF protection, file uploads
+
+

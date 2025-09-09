@@ -44,10 +44,10 @@ function ProductsCRUD() {
 
   const addProduct = async () => {
     const formData = new FormData();
-    formData.append("naziv", newItem.name);
-    formData.append("opis", newItem.description);
-    formData.append("cena", newItem.price);
-    formData.append("grupa", newItem.group);
+    formData.append("name", newItem.name);
+    formData.append("description", newItem.description);
+    formData.append("price", newItem.price);
+    formData.append("group", newItem.group);
     if (image) formData.append("slika", image);
 
     const res = await apiFetch('/api/products/', {
@@ -80,7 +80,7 @@ function ProductsCRUD() {
   const savePrice = async (id) => {
     const res = await apiFetch(`/api/products/${id}/`, {
       method: "PATCH",
-      body: JSON.stringify({ cena: newPrice }),
+      body: JSON.stringify({ price: newPrice }),
     });
 
     if (res.ok) {
@@ -99,7 +99,7 @@ function ProductsCRUD() {
       <ul>
           {products.map(product => (
             <li key={product.id}>
-              {product.naziv} - {product.opis} - {product.grupa_naziv || "No group"} -{" "}
+              {product.name} - {product.description} - {product.group_name || "No group"} -{" "}
               {editId === product.id ? (
               <>
                 <input
@@ -113,10 +113,10 @@ function ProductsCRUD() {
               </>
             ) : (
               <>
-                {product.cena} RSD{" "}
+                {product.price} RSD{" "}
                 <button onClick={() => {
                   setEditId(product.id);
-                  setNewPrice(product.cena);
+                  setNewPrice(product.price);
                 }}>Edit price</button>
               </>
             )}
@@ -139,7 +139,7 @@ function ProductsCRUD() {
           >
             <option value="">-- Choose group --</option>
             {groups.map(group => (
-              <option key={group.id} value={group.id}>{group.naziv}</option>
+              <option key={group.id} value={group.id}>{group.name}</option>
             ))}
           </select><br />
           <input

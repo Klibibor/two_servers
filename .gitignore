@@ -1,5 +1,6 @@
 # Virtualno okruženje
 venv/
+.venv/
 
 # Python cache fajlovi
 __pycache__/
@@ -18,3 +19,12 @@ db.sqlite3
 
 # VSCode folder
 .vscode/
+
+Private.md
+API_USAGE_EXAMPLES.md
+
+ReadmeOsnovneCustom.md
+HIERARCHICAL_PERMISSIONS.md
+ReadmeOsnovneCustom.md
+01. Readme_start_backend.txt
+02. Readme_aditional_frontend.txt

@@ -4,9 +4,9 @@ from rest_framework.test import APIClient
 from rest_framework_simplejwt.tokens import RefreshToken
 
 from shop.models import ProductGroup, Product
-from api.serializers.korisnici import UserSerializer
-from api.serializers.proizvodi import ProductSerializer
-from api.serializers.grupe import ProductGroupSerializer
+from api.serializers.users import UserSerializer
+from api.serializers.products import ProductSerializer
+from api.serializers.groups import ProductGroupSerializer
 
 User = get_user_model()
 
@@ -24,20 +24,20 @@ class ApiSerializersTestCase(TestCase):
 
     def test_product_serializer_fields(self):
         # input new group and product that are serialized
-        g = ProductGroup.objects.create(naziv='g')
-        p = Product.objects.create(naziv='p', opis='o', cena='1.00', grupa=g)
+        g = ProductGroup.objects.create(name='g')
+        p = Product.objects.create(name='p', description='o', price='1.00', group=g)
         s = ProductSerializer(p)
         data = s.data
-        self.assertIn('naziv', data)
-        self.assertIn('grupa_naziv', data)
+        self.assertIn('name', data)
+        self.assertIn('group_name', data)
         # output should show that data matches the value in JSON key-value pairs
 
     def test_group_serializer_includes_products(self):
 
-        g = ProductGroup.objects.create(naziv='gg')
-        p = Product.objects.create(naziv='pp', opis='o', cena='1.00', grupa=g)
+        g = ProductGroup.objects.create(name='gg')
+        p = Product.objects.create(name='pp', description='o', price='1.00', group=g)
         s = ProductGroupSerializer(g)
-        self.assertIn('proizvodi', s.data)
+        self.assertIn('products', s.data)
 
 
 class ApiViewsTestCase(TestCase):
@@ -46,8 +46,8 @@ class ApiViewsTestCase(TestCase):
         self.client = APIClient()
         self.user = User.objects.create_user(username='apitest', password='pw')
         self.admin = User.objects.create_superuser(username='admin', password='pw')
-        self.group = ProductGroup.objects.create(naziv='G1')
-        self.product = Product.objects.create(naziv='P1', opis='o', cena='1.00', grupa=self.group)
+        self.group = ProductGroup.objects.create(name='G1')
+        self.product = Product.objects.create(name='P1', description='o', price='1.00', group=self.group)
 
     def test_login_and_me(self):
         # input mock user with token

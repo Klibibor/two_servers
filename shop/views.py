@@ -25,10 +25,10 @@ class SimpleJWTOrSuperuserPermission(BasePermission):
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser, JSONParser
 from rest_framework.viewsets import ModelViewSet # import library for crud
 from shop.models import Product, ProductGroup
-from api.serializers.proizvodi import ProductSerializer
-from api.serializers.grupe import ProductGroupSerializer # import serialized model
+from api.serializers.products import ProductSerializer
+from api.serializers.groups import ProductGroupSerializer # import serialized model
 from django.contrib.auth.models import User
-from api.serializers.korisnici import UserSerializer
+from api.serializers.users import UserSerializer
 
 
 

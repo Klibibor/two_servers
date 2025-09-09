@@ -9,7 +9,7 @@ jest.mock('../utils/api', () => ({
   default: jest.fn(),
 }));
 
-// Mock AuthContext 
+// input Mock AuthContext so every route is accessible
 jest.mock('../contexts/AuthContext', () => ({
   useAuth: () => ({
     user: { id: 1, username: 'testuser', groups: ['JWT'] },
@@ -19,7 +19,7 @@ jest.mock('../contexts/AuthContext', () => ({
   }),
 }));
 
-// input render AppRoutes inside MemoryRouter with route "/"
+// input mocks backend responses for groups, products, and user with empty data
 describe('AppRoutes', () => {
   beforeEach(() => {
     const apiFetch = require('../utils/api').default;

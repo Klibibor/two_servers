@@ -18,13 +18,12 @@ jest.mock('../contexts/AuthContext', () => ({
     login: async ({ access }) => {
       const tokenStore = require('../utils/tokenStore').default;
       if (access) tokenStore.setToken(access);
-      // refresh token is now handled via HttpOnly cookie, not localStorage
     },
   }),
 }));
 
 import LoginForm from '../components/LoginForm';
-
+// input mock backend response for login call from LoginForm
 describe('LoginForm', () => {
   beforeEach(() => {
     // ensure clean localStorage
@@ -38,11 +37,12 @@ describe('LoginForm', () => {
 
   // input mock backend response for login call from LoginForm
   it('sets token on successful login and redirects', async () => {
-    // Mock fetch to return success response with credentials: 'include'
+    // Mock token response
     jest.spyOn(global, 'fetch').mockResolvedValueOnce({
       ok: true,
       json: async () => ({ access: 'test-token' }),
     });
+ 
 
     // Mock getCookie for CSRF token
     Object.defineProperty(document, 'cookie', {
@@ -56,11 +56,12 @@ describe('LoginForm', () => {
       </MemoryRouter>
     );
 
+    // fill and submit form
     await userEvent.type(screen.getByPlaceholderText('Username'), 'alice');
     await userEvent.type(screen.getByPlaceholderText('Password'), 'secret');
     await userEvent.click(screen.getByRole('button', { name: /Login/i }));
 
-  // token is stored in-memory via tokenStore
+  // check if token is set in tokenStore and navigation happened
   const tokenStore = require('../utils/tokenStore').default;
   await waitFor(() => expect(tokenStore.getToken()).toBe('test-token'));
   expect(mockNavigate).toHaveBeenCalledWith('/');

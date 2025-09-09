@@ -3,13 +3,13 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import ProductsCRUD from '../components/ProductsCRUD';
 
-// Mock apiFetch instead of global fetch
+// input Mock of api responses from backend
 jest.mock('../utils/api', () => ({
   __esModule: true,
   default: jest.fn(),
 }));
 
-// Mock AuthContext
+// input Mock AuthContext, imagined user is admin with JWT group
 jest.mock('../contexts/AuthContext', () => ({
   useAuth: () => ({
     token: 'mock-token',
@@ -17,21 +17,21 @@ jest.mock('../contexts/AuthContext', () => ({
   }),
 }));
 
-// input fake backend data for products, groups, and JWT
+// input mock backend data for products, groups, and jwtUser
 describe('ProductsCRUD', () => {
   const products = [
-    { id: 1, naziv: 'Product A', opis: 'Description A', cena: 100, grupa_naziv: 'Group1' },
-    { id: 2, naziv: 'Product B', opis: 'Description B', cena: 200, grupa_naziv: 'Group2' },
+    { id: 1, name: 'Product A', description: 'Description A', price: 100, group_name: 'Group1' },
+    { id: 2, name: 'Product B', description: 'Description B', price: 200, group_name: 'Group2' },
   ];
 
   const groups = [
-    { id: 10, naziv: 'Group1' },
-    { id: 11, naziv: 'Group2' },
+    { id: 10, name: 'Group1' },
+    { id: 11, name: 'Group2' },
   ];
 
   const jwtUser = { id: 1, username: 'admin', is_superuser: false, groups: ['JWT'] };
 
-  // input localStorage mock data
+  // clear localStorage and reset apiFetch mock before each test
   beforeEach(() => {
     localStorage.clear();
     const apiFetch = require('../utils/api').default;
@@ -43,17 +43,17 @@ describe('ProductsCRUD', () => {
     const apiFetch = require('../utils/api').default;
     
     apiFetch.mockReset();
-    apiFetch.mockImplementation((url) => {
+    apiFetch.mockImplementation((url) => { // promise for imitating backend response
       if (url.includes('/api/products/')) {
-        return Promise.resolve({ ok: true, json: async () => products });
+        return Promise.resolve({ ok: true, json: async () => products }); // return mock products above
       }
       if (url.includes('/api/groups/')) {
-        return Promise.resolve({ ok: true, json: async () => groups });
+        return Promise.resolve({ ok: true, json: async () => groups });// return mock groups above
       }
       if (url.includes('/api/auth/me/')) {
-        return Promise.resolve({ ok: true, json: async () => ({}) });
+        return Promise.resolve({ ok: true, json: async () => ({}) });// return empty user details
       }
-      return Promise.reject(new Error('Unexpected apiFetch ' + url));
+      return Promise.reject(new Error('Unexpected apiFetch ' + url));// rejectif unexpected url is called
     });
 
     render(<ProductsCRUD />);
@@ -67,7 +67,7 @@ describe('ProductsCRUD', () => {
 
     expect(await screen.findByText(/Product B/)).toBeInTheDocument();
   });
-  // output information if data is shown on product page
+  // output should be page with mocked products from above
 
   // input mock apiFetch responses for products, groups, and user
   it('allows editing price and saves updated price', async () => {
@@ -78,18 +78,18 @@ describe('ProductsCRUD', () => {
     
     // First three fetches for mount
     apiFetch.mockImplementation((url, options) => {
-      if (url.includes('/api/products/') && (!options || options.method === undefined)) {
-        return Promise.resolve({ ok: true, json: async () => products });
+      if (url.includes('/api/products/') && (!options || options.method === undefined)) {// method is GET
+        return Promise.resolve({ ok: true, json: async () => products }); // return mock products above
       }
       if (url.includes('/api/groups/')) {
-        return Promise.resolve({ ok: true, json: async () => groups });
+        return Promise.resolve({ ok: true, json: async () => groups }); // return mock groups above
       }
       if (url.includes('/api/auth/me/')) {
-        return Promise.resolve({ ok: true, json: async () => jwtUser });
+        return Promise.resolve({ ok: true, json: async () => jwtUser }); // return mock user jwtUser
       }
-      if (url.includes('/api/products/1/') && options && options.method === 'PATCH') {
+      if (url.includes('/api/products/1/') && options && options.method === 'PATCH') {// PATCH method
         // simulate server returning updated product
-        return Promise.resolve({ ok: true, json: async () => ({ id: 1, naziv: 'Product A', opis: 'Description A', cena: 150, grupa_naziv: 'Group1' }) });
+        return Promise.resolve({ ok: true, json: async () => ({ id: 1, name: 'Product A', description: 'Description A', price: 150, group_name: 'Group1' }) });
       }
       return Promise.reject(new Error('Unexpected apiFetch ' + url));
     });
@@ -131,7 +131,7 @@ describe('ProductsCRUD', () => {
     tokenStore.setToken('fake-token');
     // output mocks JWT token in localStorage
 
-    const newProduct = { id: 3, naziv: 'Product C', opis: 'Description C', cena: 300, grupa_naziv: 'Group1' };
+    const newProduct = { id: 3, name: 'Product C', description: 'Description C', price: 300, group_name: 'Group1' };
     // output new product details
 
     // Use a mutable products array so subsequent GETs reflect the POST

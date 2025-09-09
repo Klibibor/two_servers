@@ -11,28 +11,28 @@ User = get_user_model()
 class ShopModelsTestCase(TestCase):
     # input new row in ProductGroup
     def test_group_model(self):
-        g = ProductGroup.objects.create(naziv='Test')
+        g = ProductGroup.objects.create(name='Test')
         self.assertEqual(str(g), 'Test')
     # output confirmed new row
 
     def test_product_model_without_group(self):
         # input new row in Product without a group column
-        p = Product.objects.create(naziv='P', opis='o', cena='1.23')
-        self.assertIn('Bez grupe', str(p))
-        # output confirmed new row and auto-fill group ~ "Bez grupe"
+        p = Product.objects.create(name='P', description='o', price='1.23')
+        self.assertIn('No group', str(p))
+        # output confirmed new row and auto-fill group ~ "No group"
 
     def test_product_model_with_group(self):
         # input new row in Product with a group column
-        g = ProductGroup.objects.create(naziv='G')
-        p = Product.objects.create(naziv='P', opis='o', cena='1.23', grupa=g)
+        g = ProductGroup.objects.create(name='G')
+        p = Product.objects.create(name='P', description='o', price='1.23', group=g)
         self.assertIn('G', str(p))
         # output confirmed new row + group name
 
 class ShopViewsTestCase(TestCase):
     def setUp(self):
         # create a database row for testing
-        self.group = ProductGroup.objects.create(naziv='G1')
-        self.product = Product.objects.create(naziv='P1', opis='o', cena='1.00', grupa=self.group)
+        self.group = ProductGroup.objects.create(name='G1')
+        self.product = Product.objects.create(name='P1', description='o', price='1.00', group=self.group)
         # test user for authenticated requests
         self.user = User.objects.create_user(username='testuser', email='test@example.com', password='testpass')
         self.user.is_superuser = True
@@ -70,7 +70,7 @@ class ShopViewsTestCase(TestCase):
 
     def test_create_product_requires_auth(self):
         # input request for creating a new product without JWT or superuser
-        data = {'naziv': 'X', 'opis': 'x', 'cena': '2.00', 'grupa': self.group.id}
+        data = {'name': 'X', 'description': 'x', 'price': '2.00', 'group': self.group.id}
         resp = self.client.post('/api/products/', data)
         # should be unauthorized / forbidden without proper JWT/group
         self.assertIn(resp.status_code, [401, 403])
@@ -80,7 +80,7 @@ class ShopViewsTestCase(TestCase):
         # input request for creating a new product with JWT
         # older approach using session login won't exercise JWT-protected endpoints reliably
         # We'll demonstrate two approaches below in separate tests.
-        data = {'naziv': 'X', 'opis': 'x', 'cena': '2.00', 'grupa': self.group.id}
+        data = {'name': 'X', 'description': 'x', 'price': '2.00', 'group': self.group.id}
         resp = self.client.post('/api/products/', data)
         # should still be unauthorized since no auth provided
         self.assertIn(resp.status_code, [401, 403])
@@ -89,13 +89,13 @@ class ShopViewsTestCase(TestCase):
         # Generate a real JWT for the test user and call the endpoint
         token = str(RefreshToken.for_user(self.user).access_token)
         self.client.credentials(HTTP_AUTHORIZATION='Bearer ' + token)
-        data = {'naziv': 'X', 'opis': 'x', 'cena': '2.00', 'grupa': self.group.id}
+        data = {'name': 'X', 'description': 'x', 'price': '2.00', 'group': self.group.id}
         resp = self.client.post('/api/products/', data)
         self.assertEqual(resp.status_code, 201)
 
     def test_create_product_with_mocked_jwt(self):
         # Faster unit test: mock the JWTAuthentication.authenticate to return our test user
-        data = {'naziv': 'M', 'opis': 'm', 'cena': '3.00', 'grupa': self.group.id}
+        data = {'name': 'M', 'description': 'm', 'price': '3.00', 'group': self.group.id}
         with patch('rest_framework_simplejwt.authentication.JWTAuthentication.authenticate') as mock_auth:
             # Return (user, token) as the real method would
             mock_auth.return_value = (self.user, None)

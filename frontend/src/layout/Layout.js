@@ -91,16 +91,6 @@ function Layout() {
           <Link to="/products">Products</Link>
         </div>
 
-        <nav className="menu"> {/* container for menu of navbar */}
-          {['admin', 'jwt'].includes(role) && (
-            <Link to="/administration">Administration</Link>
-          )}
-        </nav>
-
-        <div className="icons"> {/* container for user icons */}
-          <Link to="/cart">🛒</Link>
-        </div>
-
   {/* login info moved to left-side */}
       </header>
 

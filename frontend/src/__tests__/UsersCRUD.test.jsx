@@ -3,13 +3,13 @@ import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import UsersCRUD from '../components/UsersCRUD';
 
-// Mock apiFetch instead of global fetch
+// input Mock of api responses from backend
 jest.mock('../utils/api', () => ({
   __esModule: true,
   default: jest.fn(),
 }));
 
-// Mock AuthContext
+// input Mock AuthContext with admin user
 jest.mock('../contexts/AuthContext', () => ({
   useAuth: () => ({
     token: 'mock-token',
@@ -17,6 +17,7 @@ jest.mock('../contexts/AuthContext', () => ({
   }),
 }));
 
+// input mock backend data for users
 describe('UsersCRUD', () => {
   beforeEach(() => {
     jest.clearAllMocks();
@@ -36,7 +37,9 @@ describe('UsersCRUD', () => {
     expect(await screen.findByText(/alice/)).toBeInTheDocument();
     expect(screen.getByText(/a@example.com/)).toBeInTheDocument();
   });
+  //output should be page with mocked users from above
 
+  // input adding a new user
   it('adds a new user when form is submitted', async () => {
     const existingUsers = [{ id: 1, username: 'alice', email: 'a@example.com' }];
     const newUser = { id: 2, username: 'bob', email: 'b@example.com' };

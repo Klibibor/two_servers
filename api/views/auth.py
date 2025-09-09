@@ -47,6 +47,7 @@ class APITokenObtainPairView(TokenObtainPairView):  # auth/token/
     serializer_class = APITokenObtainPairSerializer  
 # output human readable token
 
+# input class for refreshing token with CSRF protection + cookie
 @method_decorator(csrf_protect, name='dispatch')
 class CookieTokenRefreshView(APIView):
     permission_classes = (AllowAny,)  # CSRF middleware / decorator enforces token check
@@ -71,6 +72,7 @@ class CookieTokenRefreshView(APIView):
             return Response({'access': access})
         except Exception:
             return Response(status=status.HTTP_401_UNAUTHORIZED)
+# output new access token if refresh token is valid
 
         
 # input get request from a user
