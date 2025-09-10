@@ -10,15 +10,16 @@ function getCookie(name) {
 }
 // output found CSRF token in cookie
 
-// input fetch call to backend for refreshing access token
+// input fetch call to backend for refreshing access token (HttpOnly cookie approach)
 async function refreshAccessToken() {
   const response = await fetch(`${API_BASE}/api/auth/token/refresh/`, { //url for refreshing token
     method: 'POST', 
-    credentials: 'include', // include cookies in the request
+    credentials: 'include', // include HttpOnly refresh cookie automatically
     headers: {
       'Content-Type': 'application/json', 
       'X-CSRFToken': getCookie('csrftoken'), // add CSRF token to header 
     },
+    // No body needed - refresh token is automatically sent as HttpOnly cookie
   });
 
   if (!response.ok) {   // if response is 401 or other error ==> not ok

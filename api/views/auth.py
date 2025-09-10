@@ -64,7 +64,7 @@ class CookieTokenRefreshView(APIView):
 
         refresh_token = request.COOKIES.get('refresh')
         if not refresh_token:
-            return Response({'detail': 'no refresh cookie'}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response({'detail': 'No refresh token cookie found'}, status=status.HTTP_401_UNAUTHORIZED)
         try:
             token = RefreshToken(refresh_token)
             access = str(token.access_token)
@@ -96,20 +96,28 @@ class MeAPIView(APIView):  # auth/me/
 class LogoutView(APIView):  # auth/logout/
     permission_classes = (IsAuthenticated,)
 
-    def post(self, request):
-        refresh_token = request.data.get('refresh')
+    def post(self, request): # post method to logout
+        # Get refresh token from HttpOnly cookie
+        refresh_token = request.COOKIES.get('refresh')
+        
+        resp = Response(status=status.HTTP_205_RESET_CONTENT)
+        
         if refresh_token:
             try:
                 token = RefreshToken(refresh_token)
                 token.blacklist()
-                return Response(status=status.HTTP_205_RESET_CONTENT)
             except Exception:
-                return Response(status=status.HTTP_400_BAD_REQUEST)
-        # fallback: for session auth just logout
+                pass  # Continue even if blacklist fails
+        
+        # Clear the HttpOnly refresh cookie
+        resp.delete_cookie('refresh', path='/')
+        
+        # Fallback: for session auth just logout
         from django.contrib.auth import logout
         logout(request)
-        return Response(status=status.HTTP_200_OK)
-    # output blacklisted refresh token or if no token user logout
+        
+        return resp
+# output logged out + blacklisted refresh token or if user has it
 
 # input username and password
 class LoginSerializer(serializers.Serializer):

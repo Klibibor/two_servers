@@ -1,6 +1,6 @@
 // src/components/UsersCRUD.jsx
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useAuth } from "../contexts/AuthContext";
 import apiFetch from "../utils/api";
 
@@ -8,10 +8,13 @@ function UsersCRUD() {
   const [users, setUsers] = useState([]);
   const [newUser, setNewUser] = useState({ username: "", email: "", password: "" });
   const { token } = useAuth();
-  const authHeader = token ? { Authorization: `Bearer ${token}` } : {};
+  const authHeader = useMemo(
+    () => (token ? { Authorization: `Bearer ${token}` } : {}),
+    [token]
+  );
 
   // Fetch users from backend
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     try {
       const res = await apiFetch("/api/users/", {
         headers: authHeader,
@@ -27,11 +30,11 @@ function UsersCRUD() {
     } catch (err) {
       console.error("Error while fetching users:", err);
     }
-  };
+  }, [authHeader]);
 
   useEffect(() => {
     fetchUsers();
-  }, []);
+  }, [fetchUsers]);
 
   // Add a new user
   const addUser = async () => {

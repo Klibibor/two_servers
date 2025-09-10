@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useReducer } from 'react'
+import React, { createContext, useContext, useEffect, useReducer, useCallback } from 'react'
 import tokenStore from '../utils/tokenStore'
 import api from '../utils/api'
 
@@ -50,7 +50,7 @@ export function AuthProvider({ children }) {
 
   //----------------------------
   // input function for refreshing user data
-  const refreshUser = async () => {
+  const refreshUser = useCallback(async () => {
     const token = tokenStore.getToken()
     if (!token) { // if  there is no token
       // set user and token to null
@@ -80,10 +80,10 @@ export function AuthProvider({ children }) {
     } finally {
       setLoading(false)
     }// output 2. if backend sends no data clear user and token
-  }
+  }, []) // useCallback dependencies - empty array since we want stable reference
   useEffect(() => {
     refreshUser()
-  }, [])
+  }, [refreshUser])
 //---------------------------------------------------------
   // login function sets token uses refresh function
   const login = async ({ access, refresh } = {}) => {
@@ -94,10 +94,8 @@ export function AuthProvider({ children }) {
     tokenStore.setToken(access); // set token in memory
     setToken(access);
     
-    // Store refresh token in localStorage for automatic refresh
-    if (refresh) {
-      localStorage.setItem('refresh_token', refresh);
-    }
+    // Refresh token is automatically stored as HttpOnly cookie by backend
+    // No need to store in localStorage - more secure this way!
     
     await refreshUser(); // refresh user data only if token exists
   }
@@ -120,7 +118,7 @@ export function AuthProvider({ children }) {
       console.error('Logout failed', err)
     } finally {
       tokenStore.clearToken();                // clear access token from memory
-      localStorage.removeItem('refresh_token'); // clear refresh token from localStorage
+      // Refresh token HttpOnly cookie will be cleared by backend logout endpoint
       // refresh cookie is HttpOnly and will be cleared by backend; frontend must not try to remove it
       resetAuth();
     }

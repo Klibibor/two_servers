@@ -7,7 +7,7 @@ import LoginInfo from '../components/LoginInfo';
  // input store for user, role, dropdown, logout
 function Layout() {
   const [showDropdown, setShowDropdown] = useState(false);      // dropdown menu is object of setShowDropdown method if not false
-  const { user: authUser, token, logout } = useAuth();
+  const { user: authUser, token } = useAuth();
   const [role, setRole] = useState('anonymous');
 
   // starting role if not token and authUser
@@ -38,19 +38,6 @@ function Layout() {
     }
   }, [authUser, role]);
 // info about user and role
-
-  // input logout handler
-  const handleLogout = async () => {
-    // use centralized logout which handles session and JWT logout
-    try {
-  await logout();
-    } catch (err) {
-      console.error('Logout error', err);
-    }
-    setRole('anonymous');
-    window.location.href = '/';
-  };
-  // output JWT removed and page reloaded
 
   return (
     <>

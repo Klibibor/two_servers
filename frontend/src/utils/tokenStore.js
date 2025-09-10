@@ -16,6 +16,7 @@ export function clearToken() {
   _token = null;
 }
 
-export default { setToken, getToken, clearToken };
+const tokenStore = { setToken, getToken, clearToken };
+export default tokenStore;
 
 // output callable functions
