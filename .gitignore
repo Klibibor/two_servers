@@ -22,6 +22,8 @@ db.sqlite3
 
 Private.md
 API_USAGE_EXAMPLES.md
+requirements-minimal.txt
+requirements-clean.txt
 
 ReadmeOsnovneCustom.md
 HIERARCHICAL_PERMISSIONS.md

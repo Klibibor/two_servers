@@ -35,24 +35,24 @@ class APITokenObtainPairSerializer(CustomTokenObtainPairSerializer):
     def validate(self, attrs):  # method that validates user + gives JWT
         data = super().validate(attrs)  # attrs = 2 key-value username, password
         user = self.user  # get user info and check if its superuser and JWT group
-        if not (
-            user.groups.filter(name="JWT").exists() or user.is_superuser
+        if not ( # blocks users that are not in JWT group or superuser from generating token
+            user.groups.filter(name="JWT").exists() or user.is_superuser 
         ):
             raise serializers.ValidationError("user cant generate token.")
         return data  # generate token with custom get_token method
-    # token for user call
+# output token for user that made the call
 
 # input generated token
 class APITokenObtainPairView(TokenObtainPairView):  # auth/token/
     serializer_class = APITokenObtainPairSerializer  
 # output human readable token
 
-# input class for refreshing token with CSRF protection + cookie
+# input decorator that checks CSRF protection + class token refresh 
 @method_decorator(csrf_protect, name='dispatch')
 class CookieTokenRefreshView(APIView):
-    permission_classes = (AllowAny,)  # CSRF middleware / decorator enforces token check
+    permission_classes = (AllowAny,) 
 
-    def post(self, request):
+    def post(self, request): # post request to refresh token
         # Debug: log cookies and headers to diagnose missing refresh cookie / CSRF issues
         try:
             print("DEBUG CookieTokenRefreshView - request.COOKIES:", request.COOKIES)
