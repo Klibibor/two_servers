@@ -5,27 +5,32 @@ from rest_framework_simplejwt.authentication import JWTAuthentication
 from rest_framework.request import Request as DRFRequest
 
 # input BasePermission and function has_permission
-class AnonymousReadOnlyPermission(BasePermission):
+class ReadOnlyPermission(BasePermission):
     """
-    Allows anonymous users to perform SAFE_METHODS only (GET, HEAD, OPTIONS).
+    Base read-only permission class.
+    Allows all users to perform SAFE_METHODS only (GET, HEAD, OPTIONS).
     No authentication required for read operations.
     Denies all write operations (POST, PUT, PATCH, DELETE).
+    Other permission classes can inherit from this for consistent read access.
     """
     def has_permission(self, request, view):
         return request.method in SAFE_METHODS
 # output class that allows SAFE_METHODS
 
 # input BasePermission and functions has_permission + authenticate
-class JWTUserPermission(BasePermission):
+class JWTUserPermission(ReadOnlyPermission):
     """
-    Requires valid JWT token AND membership in 'JWT' group.
+    Inherits read-only access from ReadOnlyPermission.
+    Additionally allows write operations for users with valid JWT token AND membership in 'JWT' group.
     Allows full CRUD operations for JWT group members.
     Does NOT include superuser logic - purely JWT group based.
     """
     def has_permission(self, request, view):
-        print(f"testing for: Method={request.method}, Path={request.path}")
-        if request.method in SAFE_METHODS:
-            print("method in SAFE_METHODS - returning True")
+        print(f"JWTUserPermission: Method={request.method}, Path={request.path}")
+        
+        # Use parent class for read operations (includes SAFE_METHODS check)
+        if super().has_permission(request, view):
+            print("Read operation allowed by ReadOnlyPermission")
             return True
 
         # input check for Bearer + JWT token
@@ -71,15 +76,18 @@ class JWTUserPermission(BasePermission):
             print(f"DB groups check after exception = {db_result}, Source = db (fallback)")
             return db_result
 
-class SuperuserPermission(BasePermission):
+class SuperuserPermission(ReadOnlyPermission):
     """
-    Allows full access to superusers only.
-    Requires valid JWT token AND superuser status.
+    Inherits read-only access from ReadOnlyPermission.
+    Additionally allows write operations for superusers only.
+    Requires valid JWT token AND superuser status for write operations.
     """
     def has_permission(self, request, view):
-        print(f"testing for: Method={request.method}, Path={request.path}")
-        if request.method in SAFE_METHODS:
-            print("method in SAFE_METHODS - returning True")
+        print(f"SuperuserPermission: Method={request.method}, Path={request.path}")
+        
+        # Use parent class for read operations (includes SAFE_METHODS check)
+        if super().has_permission(request, view):
+            print("Read operation allowed by ReadOnlyPermission")
             return True
 
         # input check for Bearer + JWT token

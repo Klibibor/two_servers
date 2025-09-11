@@ -1,7 +1,7 @@
 # --- AUTH VIEWS ---
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, BasePermission
 from api.views.permissions import (
-    AnonymousReadOnlyPermission, 
+    ReadOnlyPermission, 
     JWTUserPermission, 
     SuperuserPermission
 )
@@ -23,7 +23,7 @@ from api.serializers.users import UserSerializer
 class ProductGroupViewSet(ModelViewSet): 
     queryset = ProductGroup.objects.all() # model
     serializer_class = ProductGroupSerializer # serialized model
-    permission_classes = [JWTUserPermission | SuperuserPermission] # Samo autentifikovani korisnici
+    permission_classes = [ReadOnlyPermission | JWTUserPermission | SuperuserPermission] # Read for all, Write for JWT/Superuser
 # output get request for all and post request for JWT users
 
 # input model, serialized model, class handling permissions, class handling uploads
@@ -31,7 +31,7 @@ class ProductViewSet(ModelViewSet):
     queryset = Product.objects.all() # model
     serializer_class = ProductSerializer # serialized model
     parser_classes = [MultiPartParser, FormParser, JSONParser] # handling uploads and JSON to database from front-end
-    permission_classes = [JWTUserPermission | SuperuserPermission] # Samo autentifikovani korisnici
+    permission_classes = [ReadOnlyPermission | JWTUserPermission | SuperuserPermission] # Read for all, Write for JWT/Superuser
     
     def dispatch(self, request, *args, **kwargs):
         print(f"request {request.method} {request.path}")
@@ -70,21 +70,21 @@ class KorisnikViewSet(ModelViewSet):
     # Different permission levels for different operations
     def get_permissions(self):
         if self.action in ['create', 'update', 'partial_update', 'destroy']:
-            # Temporarily allow JWT users to manage users for testing
+            # Write operations require JWT or Superuser permissions
             permission_classes = [JWTUserPermission | SuperuserPermission]  
         elif self.action in ['list', 'retrieve']:
-            # JWT users can view users
-            permission_classes = [JWTUserPermission]  
+            # Read operations use scalable permission hierarchy  
+            permission_classes = [ReadOnlyPermission | JWTUserPermission | SuperuserPermission]  
         else:
             permission_classes = [IsAuthenticated]  # Fallback
         return [perm() for perm in permission_classes]
         
     def create(self, request, *args, **kwargs):
-        print(f"DEBUG KorisnikViewSet.create: {request.method} {request.path}")
-        print(f"DEBUG KorisnikViewSet.create: Data = {request.data}")
+        print(f"request.method.create: {request.method} {request.path}")
+        print(f"request Data = {request.data}")
         serializer = self.get_serializer(data=request.data)
-        print(f"DEBUG KorisnikViewSet.create: Serializer valid = {serializer.is_valid()}")
+        print(f"Serializer valid = {serializer.is_valid()}")
         if not serializer.is_valid():
-            print(f"DEBUG KorisnikViewSet.create: Serializer errors = {serializer.errors}")
+            print(f"Serializer errors = {serializer.errors}")
         return super().create(request, *args, **kwargs)
 # output: view access for JWT+superusers, CUD operations for superusers only
