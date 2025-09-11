@@ -6,20 +6,7 @@ from api.views.permissions import (
     SuperuserPermission
 )
 
-class SimpleJWTOrSuperuserPermission(BasePermission):
-    """Jednostavan pristup: proveri da li je user u JWT grupi ili superuser putem session auth."""
-    def has_permission(self, request, view):
-        # GET zahtevi dozvoljena svima
-        if request.method in ['GET', 'HEAD', 'OPTIONS']:
-            return True
-            
-        # Za ostale zahteve proveri da li je user authenticated
-        if not request.user.is_authenticated:
-            return False
-            
-        # Proveri da li je superuser ili u JWT grupi
-        return (request.user.is_superuser or 
-                request.user.groups.filter(name='JWT').exists())
+
 
 # --- SERIALIZERS AND PARSERS FOR VIEWS ---
 from rest_framework.parsers import MultiPartParser, FormParser, JSONParser, JSONParser
@@ -47,29 +34,29 @@ class ProductViewSet(ModelViewSet):
     permission_classes = [JWTUserPermission | SuperuserPermission] # Samo autentifikovani korisnici
     
     def dispatch(self, request, *args, **kwargs):
-        print(f"DEBUG ProductViewSet.dispatch: {request.method} {request.path}")
-        print(f"DEBUG ProductViewSet.dispatch: Authorization header = {request.META.get('HTTP_AUTHORIZATION', 'None')}")
-        print(f"DEBUG ProductViewSet.dispatch: User = {request.user}")
-        print(f"DEBUG ProductViewSet.dispatch: Is authenticated = {request.user.is_authenticated}")
+        print(f"request {request.method} {request.path}")
+        print(f"request Authorization header = {request.META.get('HTTP_AUTHORIZATION', 'None')}")
+        print(f"request User = {request.user}")
+        print(f"request Is authenticated = {request.user.is_authenticated}")
         return super().dispatch(request, *args, **kwargs)
     
     def list(self, request, *args, **kwargs):
-        print(f"DEBUG ProductViewSet.list: {request.method} {request.path}")
-        print(f"DEBUG ProductViewSet.list: User = {request.user}")
-        print(f"DEBUG ProductViewSet.list: Is authenticated = {request.user.is_authenticated}")
+        print(f"request {request.method} {request.path}")
+        print(f"request User = {request.user}")
+        print(f"request Is authenticated = {request.user.is_authenticated}")
         return super().list(request, *args, **kwargs)
     
     def create(self, request, *args, **kwargs):
-        print(f"DEBUG ProductViewSet.create: {request.method} {request.path}")
-        print(f"DEBUG ProductViewSet.create: Data = {request.data}")
-        print(f"DEBUG ProductViewSet.create: User = {request.user}")
-        print(f"DEBUG ProductViewSet.create: Content-Type = {request.content_type}")
-        
+        print(f"request {request.method} {request.path}")
+        print(f"request Data = {request.data}")
+        print(f"request User = {request.user}")
+        print(f"request Content-Type = {request.content_type}")
+
         # Test serializer validation
         serializer = self.get_serializer(data=request.data)
-        print(f"DEBUG ProductViewSet.create: Serializer valid = {serializer.is_valid()}")
+        print(f"request ProductViewSet.create: Serializer valid = {serializer.is_valid()}")
         if not serializer.is_valid():
-            print(f"DEBUG ProductViewSet.create: Serializer errors = {serializer.errors}")
+            print(f"request ProductViewSet.create: Serializer errors = {serializer.errors}")
         
         return super().create(request, *args, **kwargs)
 # output get request for all and post request for JWT users
