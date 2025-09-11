@@ -23,54 +23,53 @@ class JWTUserPermission(BasePermission):
     Does NOT include superuser logic - purely JWT group based.
     """
     def has_permission(self, request, view):
-        print(f"DEBUG JWTUserPermission: Method={request.method}, Path={request.path}")
+        print(f"testing for: Method={request.method}, Path={request.path}")
         if request.method in SAFE_METHODS:
-            print("DEBUG JWTUserPermission: SAFE_METHODS - returning True")
+            print("method in SAFE_METHODS - returning True")
             return True
 
-        # input Bearer + JWT token
+        # input check for Bearer + JWT token
         try:
             auth_result = JWTAuthentication().authenticate(request)
         except Exception as e:
-            print(f"DEBUG JWTUserPermission: Authentication failed: {e}")
+            print(f"error Authentication failed: {e}")
             return False
-        # output user + decoded token with payload
-        if not auth_result:
-            print("DEBUG JWTUserPermission: No auth result")
-            return False
-             
-        user, validated_token = auth_result
-        print(f"DEBUG JWTUserPermission: Auth result = {auth_result}")
-        if not (user and user.is_authenticated):
-            print("DEBUG JWTUserPermission: User not authenticated")
-            return False
-        # looks for user in authenticated users
 
-        print(f"DEBUG JWTUserPermission: User={user.username}, Token exists={bool(validated_token)}")
+        if not auth_result:
+            print("error No Authentication result")
+            return False
+        # 1. error if no token or nothing returned
+            
+        user, validated_token = auth_result
+        print(f"Auth result = {auth_result}")
+        if not (user and user.is_authenticated):
+            print("error User not authenticated")
+            return False
+        # 2. error if user in authenticated users
+
+        print(f"success: User={user.username}, Token exists={bool(validated_token)}")
+        # 3. success if user authenticated and token exists
 
         # Check payload groups key-value pair
         try:
-            token_groups = []
-            if validated_token:
-                token_groups = validated_token.get('groups') or validated_token.payload.get('groups', [])
-                
-            print(f"DEBUG JWTUserPermission: Token groups = {token_groups}")
-                
-            # If token contains groups, prefer stateless check
+            token_groups = validated_token.get('groups') or validated_token.payload.get('groups', [])
+            print(f"from token payload: Token groups = {token_groups}")
+
             if token_groups:
                 result = 'JWT' in token_groups
-                print(f"DEBUG JWTUserPermission: Stateless check result = {result}")
+                print(f"Stateless check result = {result}, Source = token")
                 return result
-                
-            # Fallback to DB check for tokens without custom claims
+
+            # Fallback to DB
             db_result = user.groups.filter(name='JWT').exists()
-            print(f"DEBUG JWTUserPermission: DB groups check = {db_result}")
+            print(f"from django DB user.groups: Groups check = {db_result}, Source = db")
             return db_result
+
         except Exception as e:
-            print(f"DEBUG JWTUserPermission: Exception in groups check: {e}")
-            # Last resort DB check
-            return user.groups.filter(name='JWT').exists()
-        # output True if user in JWT group, else False
+            print(f"in group check: {e}")
+            db_result = user.groups.filter(name='JWT').exists()
+            print(f"DB groups check after exception = {db_result}, Source = db (fallback)")
+            return db_result
 
 class SuperuserPermission(BasePermission):
     """
@@ -78,34 +77,50 @@ class SuperuserPermission(BasePermission):
     Requires valid JWT token AND superuser status.
     """
     def has_permission(self, request, view):
+        print(f"testing for: Method={request.method}, Path={request.path}")
         if request.method in SAFE_METHODS:
+            print("method in SAFE_METHODS - returning True")
             return True
 
-        # input Bearer + JWT token
+        # input check for Bearer + JWT token
         try:
             auth_result = JWTAuthentication().authenticate(request)
-        except Exception:
+        except Exception as e:
+            print(f"error Authentication failed: {e}")
             return False
-        # output user + decoded token with payload
-        
+
         if not auth_result:
+            print("error No Authentication result")
             return False
+        # 1. error if no token or nothing returned
             
         user, validated_token = auth_result
+        print(f"Auth result = {auth_result}")
         if not (user and user.is_authenticated):
+            print("error User not authenticated")
             return False
-            
-        # Check superuser status from token claims (preferred)
+        # 2. error if user in authenticated users
+
+        print(f"success: User={user.username}, Token exists={bool(validated_token)}")
+        # 3. success if user authenticated and token exists
+
+        # Check for superuser status (from token payload)
         try:
-            token_is_superuser = False
-            if validated_token:
-                token_is_superuser = validated_token.get('is_superuser') or validated_token.payload.get('is_superuser', False)
+            is_superuser = validated_token.get('is_superuser') or validated_token.payload.get('is_superuser', False)
+            print(f"from token payload: is_superuser = {is_superuser}")
             
-            # If token says superuser, accept
-            if token_is_superuser:
+            if is_superuser:
+                print(f"Superuser access granted from token payload")
                 return True
-        except Exception:
-            pass
-            
-        # Fallback: check DB
-        return user.is_superuser
+                
+            # Fallback to DB superuser check
+            db_superuser = user.is_superuser
+            print(f"from django DB: is_superuser = {db_superuser}")
+            return db_superuser
+
+        except Exception as e:
+            print(f"in superuser check: {e}")
+            db_superuser = user.is_superuser
+            print(f"DB superuser check after exception = {db_superuser}")
+            return db_superuser
+        

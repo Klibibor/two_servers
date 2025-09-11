@@ -17,6 +17,10 @@ db.sqlite3
 # Log fajlovi
 *.log
 
+# Serializer fajlovi koji se automatski generišu
+api/serializers/grupe.py
+api/serializers/proizvodi.py
+
 # VSCode folder
 .vscode/
 
