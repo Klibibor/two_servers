@@ -1,4 +1,5 @@
 # --- AUTH VIEWS ---
+import logging
 from rest_framework.permissions import IsAuthenticated, IsAdminUser, BasePermission
 from api.views.permissions import (
     ReadOnlyPermission, 
@@ -17,6 +18,8 @@ from api.serializers.groups import ProductGroupSerializer # import serialized mo
 from django.contrib.auth.models import User
 from api.serializers.users import UserSerializer
 
+# Initialize logger for this module
+logger = logging.getLogger(__name__)
 
 
 # input model, serialized model, class handling permissions
@@ -24,6 +27,13 @@ class ProductGroupViewSet(ModelViewSet):
     queryset = ProductGroup.objects.all() # model
     serializer_class = ProductGroupSerializer # serialized model
     permission_classes = [ReadOnlyPermission | JWTUserPermission | SuperuserPermission] # Read for all, Write for JWT/Superuser
+    
+    def dispatch(self, request, *args, **kwargs):
+        logger.debug(
+            "ProductGroupViewSet: %s %s by %s (auth=%s)",
+            request.method, request.path, request.user, request.user.is_authenticated
+        )
+        return super().dispatch(request, *args, **kwargs)
 # output get request for all and post request for JWT users
 
 # input model, serialized model, class handling permissions, class handling uploads
@@ -34,31 +44,12 @@ class ProductViewSet(ModelViewSet):
     permission_classes = [ReadOnlyPermission | JWTUserPermission | SuperuserPermission] # Read for all, Write for JWT/Superuser
     
     def dispatch(self, request, *args, **kwargs):
-        print(f"request {request.method} {request.path}")
-        print(f"request Authorization header = {request.META.get('HTTP_AUTHORIZATION', 'None')}")
-        print(f"request User = {request.user}")
-        print(f"request Is authenticated = {request.user.is_authenticated}")
+        logger.debug(
+            "ProductViewSet: %s %s by %s (auth=%s) auth_header=%s",
+            request.method, request.path, request.user, request.user.is_authenticated,
+            bool(request.META.get('HTTP_AUTHORIZATION'))
+        )
         return super().dispatch(request, *args, **kwargs)
-    
-    def list(self, request, *args, **kwargs):
-        print(f"request {request.method} {request.path}")
-        print(f"request User = {request.user}")
-        print(f"request Is authenticated = {request.user.is_authenticated}")
-        return super().list(request, *args, **kwargs)
-    
-    def create(self, request, *args, **kwargs):
-        print(f"request {request.method} {request.path}")
-        print(f"request Data = {request.data}")
-        print(f"request User = {request.user}")
-        print(f"request Content-Type = {request.content_type}")
-
-        # Test serializer validation
-        serializer = self.get_serializer(data=request.data)
-        print(f"request ProductViewSet.create: Serializer valid = {serializer.is_valid()}")
-        if not serializer.is_valid():
-            print(f"request ProductViewSet.create: Serializer errors = {serializer.errors}")
-        
-        return super().create(request, *args, **kwargs)
 # output get request for all and post request for JWT users
 
 # --- KORISNICI VIEWS ---
@@ -67,6 +58,14 @@ class ProductViewSet(ModelViewSet):
 class KorisnikViewSet(ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    
+    def dispatch(self, request, *args, **kwargs):
+        logger.debug(
+            "KorisnikViewSet: %s %s by %s (auth=%s)",
+            request.method, request.path, request.user, request.user.is_authenticated
+        )
+        return super().dispatch(request, *args, **kwargs)
+    
     # Different permission levels for different operations
     def get_permissions(self):
         if self.action in ['create', 'update', 'partial_update', 'destroy']:
@@ -78,13 +77,4 @@ class KorisnikViewSet(ModelViewSet):
         else:
             permission_classes = [IsAuthenticated]  # Fallback
         return [perm() for perm in permission_classes]
-        
-    def create(self, request, *args, **kwargs):
-        print(f"request.method.create: {request.method} {request.path}")
-        print(f"request Data = {request.data}")
-        serializer = self.get_serializer(data=request.data)
-        print(f"Serializer valid = {serializer.is_valid()}")
-        if not serializer.is_valid():
-            print(f"Serializer errors = {serializer.errors}")
-        return super().create(request, *args, **kwargs)
 # output: view access for JWT+superusers, CUD operations for superusers only
