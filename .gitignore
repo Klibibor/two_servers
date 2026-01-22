@@ -11,9 +11,6 @@ __pycache__/
 # SQLite baza (ako se koristi lokalno)
 db.sqlite3
 
-# Media fajlovi
-media/
-
 # Environment varijable
 .env
 
