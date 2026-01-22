@@ -1,0 +1,38 @@
+# Virtualno okruženje
+venv/
+.venv/
+
+# Python cache fajlovi
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# SQLite baza (ako se koristi lokalno)
+db.sqlite3
+
+# Media fajlovi
+media/
+
+# Environment varijable
+.env
+
+# Log fajlovi
+*.log
+
+# Serializer fajlovi koji se automatski generišu
+api/serializers/grupe.py
+api/serializers/proizvodi.py
+
+# VSCode folder
+.vscode/
+
+Private.md
+API_USAGE_EXAMPLES.md
+requirements-minimal.txt
+requirements-clean.txt
+
+ReadmeOsnovneCustom.md
+HIERARCHICAL_PERMISSIONS.md
+01. Readme_start_backend.txt
+02. Readme_aditional_frontend
