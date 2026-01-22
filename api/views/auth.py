@@ -139,10 +139,11 @@ class LoginView(APIView): # auth/login/
         password = serializer.validated_data['password']
 
         user = authenticate(request, username=username, password=password)
-        # log the user in (session-auth)
-        django_login(request, user)
         if user is None:
             return Response({'detail': 'invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+
+        # log the user in (session-auth)
+        django_login(request, user)
 
         can_get_jwt = user.is_superuser or user.groups.filter(name='JWT').exists()
 
